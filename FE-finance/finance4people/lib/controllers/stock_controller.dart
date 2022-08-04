@@ -1,0 +1,51 @@
+import 'package:finance4people/models/stock.dart';
+import 'package:finance4people/models/stock_category.dart';
+import 'package:http/http.dart' as http;
+
+class StockController {
+  static Future<List<StockCategory>> fetchStocks() async {
+    // final response = await http.get(Uri.parse('some-url'));
+
+    // if(response.statusCode == 200){
+    //   return Stock.fromJson(jsonDecode(response.body));
+    // }else{
+    //   throw Exception('FetchAlbum request has failed');
+    // }
+    return [
+      StockCategory.fromJson({
+        "title": "Category 1",
+        "stocks": [
+          Stock.fromJson({"name": "Apple", "ticker": "AAPL", "value": 200})
+        ]
+      }),
+      StockCategory.fromJson({
+        "title": "Category 2",
+        "stocks": [
+          Stock.fromJson({"name": "Tesla1", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla2", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla3", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla4", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla5", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla6", "ticker": "TSLA", "value": 700})
+        ]
+      }),
+      StockCategory.fromJson({
+        "title": "Category 3",
+        "stocks": [
+          Stock.fromJson({"name": "Apple", "ticker": "AAPL", "value": 200})
+        ]
+      }),
+      StockCategory.fromJson({
+        "title": "Category 4",
+        "stocks": [
+          Stock.fromJson({"name": "Tesla1", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla2", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla3", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla4", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla5", "ticker": "TSLA", "value": 700}),
+          Stock.fromJson({"name": "Tesla6", "ticker": "TSLA", "value": 700})
+        ]
+      })
+    ];
+  }
+}

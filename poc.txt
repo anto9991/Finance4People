@@ -1,0 +1,51 @@
+23/02/22 - Antonel-Gabriel Gabor
+
+POC FINANCE FOR PEOPLE (Nome da rivedere)
+
+Analisi preliminare:
+
+    Il problema fondamentale è che il popolo italiano è finanziariamente alfabeto (problema presente in altri paesi ma in minor misura); 
+    l'obbiettivo del nostro applicativo è quello di semplificare gli indicatori finanziari per permettere alle persone comuni di capirli chiaramente
+    e decidere come investire al meglio il proprio denaro.
+    Molto spesso in questo ambito si usano sigle al solo fine apparente di rendere le cose complicate: vogliamo semplificarle.
+
+Prima versione, concetti fondamentali:
+
+    PROFILAZIONE DELL'UTENTE:
+    Dopo la fase di registrazione verrà posto un questionario all'utente al file di categorizzarlo per poter fornire i punteggi in base alle sue caratteristiche:
+    per esempio un utente giovane è potenzialmente più esponibile al rischio quindi aziende con fondamentali più deboli ma con una maggiore notorietà avrà per lui un punteggio
+    maggiore.
+
+    VALUTAZIONE DELL'AZIENDA:
+    Per la prima versione dell'applicativo ci focalizzeremo sul mercato azionario e sull'analisi dei fondamentali delle compagnie, inizieremo con i
+    principali mercati europei e USA per poi espandere al resto del mondo (sempre comunque le borse principali);
+    Oltre all'analisi dei fondamentali (la parte su cui si deve concentrare Riccardo) verrà effettuata una raccolta delle news principali, il numero di citazioni sui social
+    e in base a tutti questi valori verrà dato un punteggio da 1 a 100. (in base anche al profilo dell'utente).
+
+    RACCOLTA DEI DATI: 
+    i dati verranno raccolti inizialmente da yahoo finance (se Riccardo ha altre piattaforme che ritiene valide verranno considerate), memorizzati di volta in volta su un nostro 
+    database e resi disponibili agli utenti. Per questioni tecniche sulla raccola dei dati e sulla loro elaborazione contattare Antonel.
+    
+    PIATTAFORMA:
+    La piattaforma potrebbe essere disponibile inizialmente in versione mobile, sia per iOS che Android (anche web ma non verrebbe "tanto bella"), 
+    per la presentazione dei dati che verranno elaborati e spediti da un server gestito da noi: in questo modo, nel caso in cui in futuro vorremmo implementare una versione
+    web ad hoc i dati verranno forniti dallo stesso server facendo risparmiare
+    tempo e lavoro.
+
+Idee per versioni future:
+
+    ESPANSIONE AL MERCATO OBLIGAZIONISTICO
+    ESPANSIONE AL MONDO DELLE CRITPO E DEGLI NFT
+    SVILUPPO PIATTAFORMA WEB AD HOC
+    PARTNERSHIP CON STARTINGFINANCE E O RENEGADE.INSIDER.FINANZA
+
+Sviluppo:
+    
+    Nella prima fase Riccardo effettuerà un controllo del mercato (atto a verificare eventuali competitor, nel caso fossero colossi il progetto affogherebbe ancor prima di iniziare)
+    tenendo a mente quanto descritto dal presente documento;
+    dopodichè si procederà con la definizione netta delle entità (con eventuali proprietà) da includere nel progetto.
+    Una volta definiti potrà iniziare la fase di sviluppo software, in parallelo, di server e front-end (piattaforma mobile).
+    Lo sviluppo del codice avverrà in lingua inglese mentre la lingua per l'utente finale sarà sin da subito italiano e inglese.
+
+Conclusione:
+    Con questo breve documento si è voluta descrivere l'idea che sta alla base del progetto, non è la versione finale quindi ogni modifica e idea è ben accetta.
