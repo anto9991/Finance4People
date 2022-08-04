@@ -83,7 +83,7 @@
 
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
-import 'package:finance4people/view/generic/stock_container.dart';
+import 'package:finance4people/views/utils/stock_container.dart';
 import 'package:flutter/material.dart';
 import 'package:finance4people/controllers/stock_controller.dart';
 

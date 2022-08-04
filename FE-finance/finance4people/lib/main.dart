@@ -1,6 +1,6 @@
-import 'package:finance4people/view/pages/account.dart';
-import 'package:finance4people/view/pages/favourites.dart';
-import 'package:finance4people/view/pages/home.dart';
+import 'package:finance4people/views/pages/account.dart';
+import 'package:finance4people/views/pages/favourites.dart';
+import 'package:finance4people/views/pages/home.dart';
 import 'package:flutter/material.dart';
 
 void main() {
