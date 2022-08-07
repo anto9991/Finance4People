@@ -83,9 +83,9 @@
 
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
-import 'package:finance4people/views/utils/stock_container.dart';
+import 'package:finance4people/views/utils/containers.dart';
 import 'package:flutter/material.dart';
-import 'package:finance4people/controllers/stock_controller.dart';
+import 'package:finance4people/services/stock_service.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -115,9 +115,9 @@ class _HomeState extends State<Home> {
               return ListView.builder(
                 itemCount: data?.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return categoriesContainer(
-                    data![index].title,
-                    data[index].stocks,
+                  return CategoryContainer(
+                    title: data![index].title,
+                    stocks: data[index].stocks,
                   );
                 },
               );
@@ -131,26 +131,5 @@ class _HomeState extends State<Home> {
     ));
   }
 
-  Widget categoriesContainer(String title, List<Stock> stocks) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.width * 0.4,
-      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text(title)
-        ),
-        Expanded(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: stocks.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext context, int index) {
-              return StockContainer(stock: stocks[index]);
-            },
-          ),
-        )
-      ]),
-    );
-  }
 }
 
