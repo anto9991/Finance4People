@@ -1,91 +1,8 @@
-// import 'package:finance4people/models/stock.dart';
-// import 'package:finance4people/models/stock_category.dart';
-// import 'package:flutter/material.dart';
-// import 'package:finance4people/controllers/stock_controller.dart';
-
-// class Home extends StatefulWidget {
-//   const Home({Key? key}) : super(key: key);
-//   @override
-//   State<Home> createState() => _HomeState();
-// }
-
-// class _HomeState extends State<Home> {
-//   late Future<List<StockCategory>> stockListFuture;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     stockListFuture = StockController.fetchStocks();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         body: Padding(
-//       padding: const EdgeInsets.all(15),
-//       child: FutureBuilder<List<StockCategory>>(
-//           future: stockListFuture,
-//           builder: (context, snapshot) {
-//             if (snapshot.hasData) {
-//               var data = snapshot.data;
-//               return ListView.builder(
-//                 itemCount: data?.length,
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return
-//                      CategoriesContainer(
-//                       title: data![index].title,
-//                       stocks: data[index].stocks,
-//                     );
-//                 },
-//               );
-//             } else if (snapshot.hasError) {
-//               return Text('${snapshot.error}');
-//             }
-//             return const Center(
-//               child: CircularProgressIndicator(),
-//             );
-//           }),
-//     ));
-//   }
-// }
-
-// class CategoriesContainer extends StatelessWidget {
-//   final String title;
-//   final List<Stock> stocks;
-
-//   const CategoriesContainer(
-//       {Key? key, required this.title, required this.stocks})
-//       : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       height: MediaQuery.of(context).size.width * 0.3,
-//       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-//         Align(
-//           alignment: Alignment.topLeft,
-//           child: Text(title),
-//         ),
-//         Expanded(
-//           child: ListView.builder(
-//             shrinkWrap: true,
-//             scrollDirection: Axis.horizontal,
-//             itemCount: stocks.length,
-//             itemBuilder: (BuildContext context, int index) {
-//               return StockContainer(stock: stocks[index]);
-//             },
-//           ),
-//         )
-//       ]),
-//     );
-//   }
-// }
-
-import 'package:finance4people/models/stock.dart';
+import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock_category.dart';
+import 'package:finance4people/services/stock_store.dart';
 import 'package:finance4people/views/utils/containers.dart';
 import 'package:flutter/material.dart';
-import 'package:finance4people/services/stock_service.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -94,42 +11,40 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late Future<List<StockCategory>> stockListFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    stockListFuture = StockController.fetchStocks();
-  }
+  late CategoriesContainer stockCategories;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Padding(
-      padding: const EdgeInsets.all(15),
-      child: FutureBuilder<List<StockCategory>>(
-          future: stockListFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              var data = snapshot.data;
-              return ListView.builder(
-                itemCount: data?.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return CategoryContainer(
-                    title: data![index].title,
-                    stocks: data[index].stocks,
-                  );
-                },
-              );
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
-    ));
+            padding: const EdgeInsets.all(15),
+            child: ValueListenableBuilder(
+              valueListenable: StockStore.isLoading,
+              builder: ((context,value, _) {
+              if (value == true) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if(value == false){
+                stockCategories = StockStore.categories;
+
+                return ListView.builder(
+                  itemCount: stockCategories.categories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return CategoryContainer(
+                      title: stockCategories.categories[index].title,
+                      stocks: stockCategories.categories[index].stocks,
+                    );
+                  },
+                );
+              }
+              return const Center(child: Text("Error"));
+            }))));
   }
 
+  // @override
+  // void dispose(){
+  //   StockStore.isLoading.dispose();
+  //   super.dispose();
+  // }
 }
-

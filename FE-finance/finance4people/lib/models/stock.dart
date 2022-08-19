@@ -1,25 +1,32 @@
+import 'package:flutter/material.dart';
+
 class Stock {
   final String name;
   final String ticker;
   final int value;
-  bool isFavourite;
+  ValueNotifier<bool> isFavourite = ValueNotifier<bool>(false);
 
   Stock({
     required this.name, 
     required this.ticker, 
     required this.value,
-    this.isFavourite = false
+    required this.isFavourite
   });
 
   factory Stock.fromJson(Map<String, dynamic> json){
-    return Stock(
+    try{
+      return Stock(
       name: json['name'],
       ticker: json['ticker'],
       value: json['value'],
-      isFavourite: json['isFavourite'] ?? false
+      isFavourite: ValueNotifier<bool>(json['isFavourite']?? false) 
     );
+    }catch(error){
+      throw(Exception(error));
+    } 
   }
+
   void setFavourite(){
-    isFavourite = !isFavourite;
+    isFavourite.value = !isFavourite.value;
   }
 }
