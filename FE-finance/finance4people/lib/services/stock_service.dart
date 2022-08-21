@@ -1,9 +1,11 @@
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
 import 'package:finance4people/services/stock_store.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class StockService {
+  static final host = DotEnv().env['HOST'];
   static final StockService stockService = StockService._internal();
 
   factory StockService() {

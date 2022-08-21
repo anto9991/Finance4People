@@ -5,8 +5,10 @@ import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
 import 'package:finance4people/views/pages/home.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async{
+  await DotEnv().load();
   runApp(const MyApp());
 }
 
@@ -86,101 +88,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-//import 'package:finance4people/models/stock.dart';
-// import 'package:finance4people/services/stock_store.dart';
-// import 'package:flutter/material.dart';
-
-// class StockContainer extends StatefulWidget {
-//   final Stock stock;
-//   final int catIndex;
-//   final int stockIndex;
-
-//   const StockContainer(
-//       {Key? key,
-//       required this.stock,
-//       required this.stockIndex,
-//       required this.catIndex})
-//       : super(key: key);
-
-//   @override
-//   State<StockContainer> createState() => _StockContainerState();
-// }
-
-// class _StockContainerState extends State<StockContainer> {
-//   @override
-//   Widget build(BuildContext context) {
-//     Stock stock = StockStore.categories.categories.elementAt(widget.catIndex).stocks.elementAt(widget.stockIndex);
-//     return SizedBox(
-//       height: MediaQuery.of(context).size.width * 0.3,
-//       child: Padding(
-//           padding: const EdgeInsets.all(5),
-//           child: Container(
-//               decoration: BoxDecoration(
-//                   color: Theme.of(context).cardColor,
-//                   borderRadius: BorderRadius.circular(5)),
-//               width: MediaQuery.of(context).size.width * 0.5,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(5),
-//                 child: Column(
-//                   children: <Widget>[
-//                     Align(
-//                       alignment: Alignment.topLeft,
-//                       child: Text(
-//                           "${widget.stock.name} (${widget.stock.ticker}): ${widget.stock.value}USD"),
-//                     ),
-//                     ValueListenableBuilder(
-//                         valueListenable: stock.isFavourite,
-//                         builder: ((context, value, _) {
-//                           print(value);
-//                           return IconButton(
-//                               onPressed: () {
-//                                 stock.setFavourite();
-//                               },
-//                               icon: value == true
-//                                   ? const Icon(Icons.star)
-//                                   : const Icon(Icons.star_border_outlined));
-//                         }))
-//                   ],
-//                 ),
-//               ))),
-//     );
-//   }
-// }
-
-// class CategoryContainer extends StatelessWidget {
-//   final String title;
-//   final List<Stock> stocks;
-
-//   final int catIndex;
-
-//   const CategoryContainer(
-//       {Key? key,
-//       required this.title,
-//       required this.catIndex,
-//       required this.stocks})
-//       : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       height: MediaQuery.of(context).size.width * 0.4,
-//       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-//         Align(alignment: Alignment.topLeft, child: Text(title)),
-//         Expanded(
-//           child: ListView.builder(
-//             shrinkWrap: true,
-//             itemCount: stocks.length,
-//             scrollDirection: Axis.horizontal,
-//             itemBuilder: (BuildContext context, int index) {
-//               return StockContainer(
-//                 stock: stocks[index],
-//                 catIndex: catIndex,
-//                 stockIndex: index,
-//               );
-//             },
-//           ),
-//         )
-//       ]),
-//     );
-//   }
-// }
