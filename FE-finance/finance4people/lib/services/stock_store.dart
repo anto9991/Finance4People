@@ -1,4 +1,5 @@
 import 'package:finance4people/models/categories_container.dart';
+import 'package:finance4people/models/stock_category.dart';
 import 'package:flutter/material.dart';
 
 class StockStore{
@@ -14,5 +15,7 @@ class StockStore{
   static ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
   static CategoriesContainer categories = CategoriesContainer(categories: []);
+
+  static CategoriesContainer favourites = CategoriesContainer(categories: []);
 
 }

@@ -1,6 +1,7 @@
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/services/stock_store.dart';
 import 'package:finance4people/views/pages/stock_detail.dart';
+import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/containers.dart';
 import 'package:flutter/material.dart';
 
@@ -31,40 +32,9 @@ class _HomeState extends State<Home> {
                     return ListView.builder(
                       itemCount: stockStore.categories.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return GestureDetector(
-                          child: CategoryContainer(
+                        return CategoryContainer(
                             title: stockStore.categories[index].title,
                             stocks: stockStore.categories[index].stocks,
-                          ),
-                          onTap: () {
-                            showModalBottomSheet<void>(
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)),
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.9,
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Container(
-                                            height: 5,
-                                            width: 30,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[300],
-                                              borderRadius: const BorderRadius.all(Radius.circular(8))
-                                            ),
-                                          ),
-                                        ),
-                                        const StockDetail(title: "Ciao")
-                                      ],
-                                    ),
-                                  );
-                                });
-                          },
                         );
                       },
                     );

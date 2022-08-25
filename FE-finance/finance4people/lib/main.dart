@@ -6,6 +6,8 @@ import 'package:finance4people/views/pages/favourites.dart';
 import 'package:finance4people/views/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async{
   await DotEnv().load();
@@ -20,11 +22,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const[
+        Locale('en', ''), // English, no country code
+        Locale('it', ''), // Spanish, no country code
+      ],
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: Colors.red,
-        cardColor: const Color(0xFFF4F4F4),
-        primaryColorDark: Colors.blueAccent
+        primaryColor: Colors.blue,
+        cardColor: Colors.grey[100],
+        primaryColorDark: Colors.blueAccent,
+        dividerColor: Colors.grey
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -64,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _asyncDataLoading() async {
     StockStore.categories = CategoriesContainer(categories: await StockService.getStocks());
+    StockStore.favourites = await StockService.getFavourites();
   }
     
 

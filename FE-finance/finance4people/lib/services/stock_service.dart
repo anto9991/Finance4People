@@ -1,3 +1,4 @@
+import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
 import 'package:finance4people/services/stock_store.dart';
@@ -62,7 +63,31 @@ class StockService {
       // }
       return stocks;
     } catch (error) {
-      throw(Exception(error));
+      throw (Exception(error));
+    } finally {
+      StockStore.isLoading.value = false;
+    }
+  }
+
+  static Future<CategoriesContainer> getFavourites() async {
+    try {
+      StockStore.isLoading.value = true;
+      CategoriesContainer stockStore = StockStore.categories;
+      CategoriesContainer result = CategoriesContainer(categories: []);
+      int index = 0;
+
+      for (var category in stockStore.categories) {
+        result.categories.add(StockCategory(title: category.title, stocks: []));
+        for (var stock in category.stocks) {
+          if (stock.isFavourite.value) {
+            result.categories.elementAt(index).stocks.add(stock);
+          }
+        }
+        index++;
+      }
+      return result;
+    } catch (error) {
+      throw (Exception(error));
     } finally {
       StockStore.isLoading.value = false;
     }
