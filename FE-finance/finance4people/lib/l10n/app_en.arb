@@ -3,6 +3,11 @@
     
     "lastWeekViews": "Last week searches on: ",
     
+    "noFavourites": "No favourites for this category",
+    "noStocksInCat": "NO stocks for this category",
+
     "name": "Name",
-    "login": "Login"
+
+    "login": "Login with",
+    "skipLogin": "Otherwhise skip login (none of your progess will be saved)"
 }

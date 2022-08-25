@@ -27,7 +27,7 @@ class BottomModal extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
             child: child,
           )
         ],

@@ -1,5 +1,5 @@
 import 'package:finance4people/models/stock.dart';
-import 'package:finance4people/views/pages/stock_detail.dart';
+import 'package:finance4people/views/pages/stock/stock_detail.dart';
 import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -72,17 +72,23 @@ class _StockContainerState extends State<StockContainer> {
 class CategoryContainer extends StatelessWidget {
   final String title;
   final List<Stock> stocks;
+  final String emptyCatString;
 
-  const CategoryContainer({Key? key, required this.title, required this.stocks})
+  const CategoryContainer(
+      {Key? key,
+      required this.title,
+      required this.stocks,
+      required this.emptyCatString})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.width * 0.4,
-      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(title),
             IconButton(
@@ -107,23 +113,24 @@ class CategoryContainer extends StatelessWidget {
           ],
         ),
         Expanded(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: stocks.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext context, int index) {
-              return StockContainer(
-                stock: stocks[index],
-              );
-            },
-          ),
+          child: stocks.isEmpty
+              ? Center(child: Text(emptyCatString))
+              : ListView.builder(
+                  itemCount: stocks.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    return StockContainer(
+                      stock: stocks[index],
+                    );
+                  },
+                ),
         )
       ]),
     );
   }
 }
 
-class GenericContainer extends StatelessWidget{
+class GenericContainer extends StatelessWidget {
   final Widget child;
   const GenericContainer({Key? key, required this.child}) : super(key: key);
 
@@ -133,8 +140,8 @@ class GenericContainer extends StatelessWidget{
       decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(10)),
-          padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       child: child,
     );
   }

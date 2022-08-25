@@ -3,7 +3,12 @@
     
     "lastWeekViews": "Ricerche nell'ultima settimana su: ",
     
+    "noFavourites": "Non ci sono preferiti per questa categoria",
+    "noStocksInCat": "Non ci sono stock per questa categoria",
+
     "name": "Nome",
-    "login": "Login"
+
+    "login": "Accedi con",
+    "skipLogin": "Altrimenti continua senza login (i tuoi progressi non verranno salvati)"
 
 }

@@ -27,25 +27,31 @@ class StockDetail extends StatelessWidget {
             ),
             Row(
               children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(5)),
+                  width: MediaQuery.of(context).size.width * 0.48,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       BoldAndPlain(bold: "P/E", plain: "15"),
-                      BoldAndPlain(bold: "Market Cap.", plain: "20mln\$"),
+                      BoldAndPlain(bold: "Market Cap.", plain: "\$20mln"),
                       BoldAndPlain(bold: "PEG", plain: "32"),
                       BoldAndPlain(bold: "Dividend yield", plain: "150"),
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.44,
+                Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(5)),
+                  width: MediaQuery.of(context).size.width * 0.48,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       BoldAndPlain(bold: "P/E", plain: "15"),
-                      BoldAndPlain(bold: "Market Cap.", plain: "20mln\$"),
+                      BoldAndPlain(bold: "Market Cap.", plain: "\$20mln"),
                       BoldAndPlain(bold: "PEG", plain: "32"),
                       BoldAndPlain(bold: "Dividend yield", plain: "150"),
                     ],
@@ -60,7 +66,7 @@ class StockDetail extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [Text(AppLocalizations.of(context)!.lastWeekViews)],
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.005),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

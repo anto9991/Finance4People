@@ -1,7 +1,7 @@
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
-import 'package:finance4people/services/stock_store.dart';
+import 'package:finance4people/stores/stock_store.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,9 +1,9 @@
 import 'package:finance4people/models/categories_container.dart';
-import 'package:finance4people/services/stock_store.dart';
-import 'package:finance4people/views/pages/stock_detail.dart';
-import 'package:finance4people/views/utils/bottom_modal.dart';
+import 'package:finance4people/services/stock_service.dart';
+import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/containers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Favourites extends StatefulWidget {
   const Favourites({Key? key}) : super(key: key);
@@ -13,6 +13,18 @@ class Favourites extends StatefulWidget {
 
 class _FavouritesState extends State<Favourites> {
   late CategoriesContainer stockStore;
+
+    @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _asyncDataLoading();
+    });
+  }
+
+  _asyncDataLoading() async {
+    StockStore.favourites = await StockService.getFavourites();
+  }
 
   @override
     Widget build(BuildContext context) {
@@ -36,8 +48,8 @@ class _FavouritesState extends State<Favourites> {
                           child: CategoryContainer(
                             title: stockStore.categories[index].title,
                             stocks: stockStore.categories[index].stocks,
+                            emptyCatString: AppLocalizations.of(context)!.noFavourites,
                           ),
-                          
                         );
                       },
                     );
