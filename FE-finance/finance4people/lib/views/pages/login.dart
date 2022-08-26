@@ -1,3 +1,4 @@
+import 'package:finance4people/services/auth_service.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,7 +21,7 @@ class Login extends StatelessWidget {
                 textColor: Colors.black,
                 logoSize: 0.065,
                 onPressed: () {
-                  print("Google");
+                  AuthService().signInWithGoogle();
                 }),
             SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             LoginButton(

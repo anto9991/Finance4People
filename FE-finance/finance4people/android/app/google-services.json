@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "943777440657",
+    "project_id": "finance4people-58004",
+    "storage_bucket": "finance4people-58004.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943777440657:android:4c87653fa0b5ef9bb6f030",
+        "android_client_info": {
+          "package_name": "com.gabor.finance4people"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "943777440657-86h8jh2sb19rbnebqdbjsb7uml87dejh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDh_5hTUFm50ggUhbGVu7zTr1C8Tf4Rlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "943777440657-86h8jh2sb19rbnebqdbjsb7uml87dejh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
