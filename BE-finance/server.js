@@ -1,5 +1,5 @@
 //
-// ───────────────────────────────────────────────────────────── DEPENDENCIES ─────
+// ───────────────────────────────────────────────────────────── DEPENDENCIES ─────────────────────────────────────────────────────────────
 //
 "use strict";
 const fastify = require("fastify")({
@@ -7,7 +7,7 @@ const fastify = require("fastify")({
     level: "info",
   },
 });
-const fastifyPlugin = require("fastify-plugin");
+
 const path = require("path");
 
 // Check for test or production env
@@ -67,7 +67,10 @@ fastify.register(require("fastify-sensible"));
 //
 
 // DB
-fastify.register(require("./db"));
+fastify.register(require("./noSQLdb"));
+fastify.register(require("@fastify/mysql"), {
+  connectionString: 'mysql:' + process.env.SQL_DB_URL
+})
 
 // AUTH
 fastify.register(require("./auth"));
@@ -96,50 +99,50 @@ fastify.setErrorHandler(function (error, request, reply) {
 });
 
 //
-// ──────────────────────────────────────────────────────────── SERVER ROUTES ─────
+// ──────────────────────────────────────────────────────────── SERVER ROUTES ─────────────────────────────────────────────────────────────
 //
 
-fastify.get("/admin/", (req, reply) => {
-  console.log("serving /admin/");
-  const stream = fs.createReadStream(
-    path.join("../client", "dist", "index.html")
-  );
-  reply.type("text/html").send(stream);
-});
+// fastify.get("/admin/", (req, reply) => {
+//   console.log("serving /admin/");
+//   const stream = fs.createReadStream(
+//     path.join("../client", "dist", "index.html")
+//   );
+//   reply.type("text/html").send(stream);
+// });
 
-fastify.get("/admin/*", (req, reply) => {
-  console.log("serving /admin/*");
-  const stream = fs.createReadStream(
-    path.join("../client", "dist", "index.html")
-  );
-  reply.code(200).type("text/html").send(stream);
-});
+// fastify.get("/admin/*", (req, reply) => {
+//   console.log("serving /admin/*");
+//   const stream = fs.createReadStream(
+//     path.join("../client", "dist", "index.html")
+//   );
+//   reply.code(200).type("text/html").send(stream);
+// });
 
-fastify.get("/admin/:filename(.[A-Za-z]{1,4})", function (req, reply) {
-  console.log("Serving /admin/:filename");
-  let filename = req.params.filename;
-  let fileext = filename.split(".").last();
-  let type = "text/plain";
-  if (fileext == "css") {
-    type = "text/css";
-  }
-  if (fileext == "js") {
-    type = "text/javascript";
-  }
-  if (fileext == "html") {
-    type = "text/html";
-  }
-  const stream = fs.createReadStream(path.join("../client", "dist", filename));
-  reply.code(200).type(type).send(stream);
-});
+// fastify.get("/admin/:filename(.[A-Za-z]{1,4})", function (req, reply) {
+//   console.log("Serving /admin/:filename");
+//   let filename = req.params.filename;
+//   let fileext = filename.split(".").last();
+//   let type = "text/plain";
+//   if (fileext == "css") {
+//     type = "text/css";
+//   }
+//   if (fileext == "js") {
+//     type = "text/javascript";
+//   }
+//   if (fileext == "html") {
+//     type = "text/html";
+//   }
+//   const stream = fs.createReadStream(path.join("../client", "dist", filename));
+//   reply.code(200).type(type).send(stream);
+// });
 
 // ROUTES USERS
-fastify.register(require("./controller/user"));
-fastify.register(require("./controller/contacts"));
-fastify.register(require("./controller/templates"));
+// fastify.register(require("./controller/user"));
+// fastify.register(require("./controller/contacts"));
+// fastify.register(require("./controller/templates"));
 
 //
-// ─── LOAD THE SERVER ────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────── LOAD THE SERVER ────────────────────────────────────────────────────────────
 //
 fastify.listen(3000, "0.0.0.0", async (err) => {
   if (err) {
