@@ -68,9 +68,9 @@ fastify.register(require("fastify-sensible"));
 
 // DB
 fastify.register(require("./noSQLdb"));
-fastify.register(require("@fastify/mysql"), {
-  connectionString: 'mysql:' + process.env.SQL_DB_URL
-})
+// fastify.register(require("@fastify/mysql"), {
+//   connectionString: 'mysql:' + process.env.SQL_DB_URL
+// })
 
 // AUTH
 fastify.register(require("./auth"));

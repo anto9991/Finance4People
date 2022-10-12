@@ -1,1 +1,3 @@
 .vscode
+/BE-finance/node_modules
+/.env
