@@ -1,3 +1,7 @@
 .vscode
 /BE-finance/node_modules
 /.env
+/BE-finance/scripts/log
+/BE-finance/scripts/example.json
+/BE-finance/scripts/example2.json
+/BE-finance/scripts/sandbox.js
