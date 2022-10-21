@@ -21,7 +21,9 @@
     "fastify-plugin": "^4.2.0",
     "fastify-sensible": "^3.2.0",
     "fastify-swagger": "^5.2.0",
+    "md5": "^2.3.0",
     "mongodb": "^4.10.0",
+    "nodemailer": "^6.8.0",
     "path": "^0.12.7"
   }
 }

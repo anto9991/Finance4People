@@ -124,7 +124,7 @@ async function YahooMain() {
     // Get csv's SP500 stocks
     let stockList = await getCSVStockList();
 
-    for (let index = 451; index <= 452;index++) {
+    for (let index = 0; index <= stockList.length;index++) {
         let stock = stockList[index];
         try {
             // Yahoo finance uses minus instead of dot
@@ -296,7 +296,7 @@ async function YahooMain() {
             continue
         }finally{
             console.log("Sleep, stock " + stock.Symbol + " done")
-            await utils.delay(30000)
+            await utils.delay(25000)
             console.log("Waking up")
         }
     }
@@ -305,9 +305,9 @@ async function YahooMain() {
 
     fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
 
-    // if (recap.errors.length > 0) {
-    //     utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
-    // }
+    if (recap.errors.length > 0) {
+        utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
+    }
 
 }
 
