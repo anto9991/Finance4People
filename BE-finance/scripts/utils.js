@@ -50,8 +50,8 @@ async function sendEmail(path, filename, pwd, adressee) {
     await transporter.sendMail({
         from: '"Data loader script" <script_server@gmail.com>',
         to: adressee,
-        subject: "Some errors occured",
-        text: "Check recap file",
+        subject: "API data load recap",
+        text: "Here's today's data load recap",
         attachments: [{
             filename: filename,
             path: path
