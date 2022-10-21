@@ -124,7 +124,7 @@ async function YahooMain() {
     // Get csv's SP500 stocks
     let stockList = await getCSVStockList();
 
-    for (let index = 0; index <= stockList.length;index++) {
+    for (let index = 0; index <= 1;index++) {
         let stock = stockList[index];
         try {
             // Yahoo finance uses minus instead of dot
@@ -299,7 +299,6 @@ async function YahooMain() {
             // await utils.delay(1000)
             console.log("Waking up")
         }
-        break
     }
 
     dbInstance.close()
