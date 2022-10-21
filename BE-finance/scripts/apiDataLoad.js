@@ -299,15 +299,15 @@ async function YahooMain() {
             // await utils.delay(1000)
             console.log("Waking up")
         }
+        break
     }
 
     dbInstance.close()
 
     fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
 
-    if (recap.errors.length > 0) {
-        utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
-    }
+    utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
+    
 
 }
 
