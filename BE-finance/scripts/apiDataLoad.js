@@ -149,6 +149,7 @@ async function YahooMain() {
                     })
                     console.log("Logging apiErr: \n", err);
                 })
+            await utils.delay(5000)
             let financeStats = financeStatsApi.quoteResponse.result[0]
 
             if(!financeStats){
@@ -211,7 +212,7 @@ async function YahooMain() {
                     console.log("Logging apiErr: \n", err);
                     return "Error"
                 })
-            fs.writeFileSync("example2.json", JSON.stringify(keyStatsApi));
+            await utils.delay(5000)
 
             // No particular reason for index 0, just json structure
             let keyStats = keyStatsApi.quoteSummary.result[0].defaultKeyStatistics
@@ -234,7 +235,7 @@ async function YahooMain() {
                     })
                     console.log("Logging apiErr: \n", err);
                 })
-
+            await utils.delay(5000)
             // This request doesn't return a simple json object but a full web page (js included with json variable containing all data)
             let parsedData = JSON.parse(utils.subStringCustom(financialsApi, 'root.App.main', '(this));\n</script><script>', 16, -3));
             let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
@@ -295,9 +296,7 @@ async function YahooMain() {
             console.log(err)
             continue
         }finally{
-            console.log("Sleep, stock " + stock.Symbol + " done")
-            // await utils.delay(1000)
-            console.log("Waking up")
+            console.log("Stock " + stock.Symbol + " checked")
         }
     }
 
