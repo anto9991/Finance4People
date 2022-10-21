@@ -296,7 +296,7 @@ async function YahooMain() {
             continue
         }finally{
             console.log("Sleep, stock " + stock.Symbol + " done")
-            await utils.delay(25000)
+            // await utils.delay(1000)
             console.log("Waking up")
         }
     }
