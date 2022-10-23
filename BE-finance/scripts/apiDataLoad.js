@@ -131,7 +131,7 @@ async function YahooMain() {
     csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
     let stockList = await getCSVStockList(csvSource);
 
-    for (let index = 0; index <= 0; index++) {
+    for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
         try {
             // Yahoo finance uses minus instead of dot

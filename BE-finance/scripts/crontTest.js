@@ -5,6 +5,8 @@ const env = require("dotenv").config({
 }).parsed;
 
 async function sendMail(){
+    console.log(env)
+    console.log(env.GMAIL_PWD)
     let config = {
         host: "smtp.gmail.com",
         port: 465,
