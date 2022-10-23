@@ -1,4 +1,9 @@
 'use strict';
+
+// Helper
+// Execute script: node apiDataLoad.js source=<string>
+// arg source identifies csv with stock list (default is stockList.csv)
+
 console.log("---------- Start load data exexution ----------\n");
 // https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
 // api_key=<YOURAPIKEY>
@@ -23,8 +28,8 @@ const fToday = today.toISOString().split('T')[0]
 const oneYearAgo = new Date(today.setFullYear(today.getFullYear() - 1))
 const fOneYearAgo = oneYearAgo.toISOString().split('T')[0]
 // ─────────────────────────────────────────────────────────────── Reading CSV ───────────────────────────────────────────────────────────────
-function getCSVStockList() {
-    return csv().fromFile("stockList.csv");
+function getCSVStockList(source = "stockList.csv") {
+    return csv().fromFile(source);
 }
 
 //
@@ -122,9 +127,11 @@ async function YahooMain() {
     }
     let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
     // Get csv's SP500 stocks
-    let stockList = await getCSVStockList();
+    let csvSource = process.argv.filter(item => item.includes('source'))
+    csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
+    let stockList = await getCSVStockList(csvSource);
 
-    for (let index = 0; index <= 1;index++) {
+    for (let index = 0; index <= 0; index++) {
         let stock = stockList[index];
         try {
             // Yahoo finance uses minus instead of dot
@@ -152,7 +159,7 @@ async function YahooMain() {
             await utils.delay(5000)
             let financeStats = financeStatsApi.quoteResponse.result[0]
 
-            if(!financeStats){
+            if (!financeStats) {
                 recap.errors.push({
                     section: "First API request",
                     ticker: stock.Symbol,
@@ -292,10 +299,10 @@ async function YahooMain() {
                 ticker: stock.Symbol,
             })
 
-        }catch(err){
+        } catch (err) {
             console.log(err)
             continue
-        }finally{
+        } finally {
             console.log("Stock " + stock.Symbol + " checked")
         }
     }
@@ -305,8 +312,6 @@ async function YahooMain() {
     fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
 
     utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
-    
-
 }
 
 YahooMain()
