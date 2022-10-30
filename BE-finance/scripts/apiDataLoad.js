@@ -311,7 +311,7 @@ async function YahooMain() {
     dbInstance.close()
 
     try{
-        fs.writeFileSync("./root/projects/Finance4People/BE-finance/scripts/log/" + recap.filename, JSON.stringify(recap))
+        fs.writeFileSync("/root/projects/Finance4People/BE-finance/scripts/log/" + recap.filename, JSON.stringify(recap))
     }catch{
         fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
     }
