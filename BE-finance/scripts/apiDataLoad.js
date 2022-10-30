@@ -132,7 +132,6 @@ async function YahooMain() {
     let stockList = await getCSVStockList(csvSource);
 
     for (let index = 0; index <= stockList.length; index++) {
-        break;
         let stock = stockList[index];
         try {
             // Yahoo finance uses minus instead of dot
@@ -310,12 +309,7 @@ async function YahooMain() {
 
     dbInstance.close()
 
-    try{
-        fs.writeFileSync("/root/scriptsLog/" + recap.filename, JSON.stringify(recap))
-        utils.sendEmail("/root/scriptsLog/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
-    }catch{
-        fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
-    }
+    fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
     utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
 }
 
