@@ -305,11 +305,16 @@ async function YahooMain() {
         } finally {
             console.log("Stock " + stock.Symbol + " checked")
         }
+        break;
     }
 
     dbInstance.close()
 
-    fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
+    try{
+        fs.writeFileSync("./root/projects/Finance4People/BE-finance/scripts/log/" + recap.filename, JSON.stringify(recap))
+    }catch{
+        fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
+    }
 
     utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
 }
