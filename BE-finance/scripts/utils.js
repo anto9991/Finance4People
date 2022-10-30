@@ -52,10 +52,10 @@ async function sendEmail(path, filename, pwd, adressee) {
         to: adressee,
         subject: "API data load recap",
         text: "Here's today's data load recap",
-        attachments: [{
-            filename: filename,
-            path: path
-        }]
+        // attachments: [{
+        //     filename: filename,
+        //     path: path
+        // }]
     });
 }
 

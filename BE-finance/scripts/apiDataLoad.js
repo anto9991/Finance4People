@@ -315,8 +315,8 @@ async function YahooMain() {
         utils.sendEmail("/root/scriptsLog/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
     }catch{
         fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
-        utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
     }
+    utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
 }
 
 YahooMain()
