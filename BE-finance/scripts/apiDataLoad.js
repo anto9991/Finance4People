@@ -1,4 +1,3 @@
-'use strict';
 
 // Helper
 // Execute script: node apiDataLoad.js source=<string>
@@ -326,4 +325,3 @@ try{
 }catch(e){
     console.log(e);
 }
-
