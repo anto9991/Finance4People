@@ -321,4 +321,9 @@ async function YahooMain() {
     console.log("------------------------ End ------------------------")
 }
 
-YahooMain()
+try{
+    YahooMain();
+}catch(e){
+    console.log(e);
+}
+
