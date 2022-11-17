@@ -137,6 +137,7 @@ async function YahooMain() {
 
     for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
+        console.log("Starting " + stock.Symbol);
         try {
             // Yahoo finance uses minus instead of dot
             if (stock.Symbol.indexOf(".") >= 0) stock.Symbol = stock.Symbol.replace('.', '-')
