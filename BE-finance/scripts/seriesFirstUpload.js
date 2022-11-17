@@ -318,8 +318,8 @@ async function YahooMain() {
 
     dbInstance.close()
 
-    // fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
-    // utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
+    fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
+    utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
     console.log("------------------------ End ------------------------")
 }
 
