@@ -6,7 +6,7 @@
 console.log("---------- Start load data exexution ----------\n");
 // https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
 // api_key=<YOURAPIKEY>
-
+console.log(process.versions)
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
