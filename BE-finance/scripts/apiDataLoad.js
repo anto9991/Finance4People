@@ -125,11 +125,15 @@ async function YahooMain() {
         console.log("Logging err: \n", err);
         // Break and notify
     }
-    let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
+    let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
     // Get csv's SP500 stocks
-    let csvSource = process.argv.filter(item => item.includes('source'))
-    csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
-    let stockList = await getCSVStockList(csvSource);
+    // let csvSource = process.argv.filter(item => item.includes('source'))
+    // csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
+    
+    // console.log("Logging source: ", csvSource)
+    // let stockList = await getCSVStockList(csvSource);
+    
+    let stockList = await getCSVStockList("stockList.csv");
 
     for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
@@ -272,18 +276,20 @@ async function YahooMain() {
                 ebit: ebit,
                 netPPE: netPPE
             }
+            let hash = md5(obj);
 
             // Check date to update DB only once a day
             let insertFinance = await dbStocks.updateOne(
-                { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } }, { "keyStatistics.date": { $exists: false } }] },
+                { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } },{ "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
                 {
                     $push: {
                         keyStatistics: {
                             date: fToday,
-                            data: obj
-                        }
+                            data: obj,
+                            hash: hash
+                        },
                     }
-                },
+                }
             )
 
             if (!insertFinance.acknowledged || !(insertFinance.modifiedCount > 0)) {
@@ -311,6 +317,7 @@ async function YahooMain() {
 
     fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
     utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
+    console.log("------------------------ End ------------------------")
 }
 
 YahooMain()
