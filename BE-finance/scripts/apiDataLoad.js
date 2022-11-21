@@ -6,7 +6,7 @@
 console.log("---------- Start load data exexution ----------\n");
 // https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
 // api_key=<YOURAPIKEY>
-console.log(process.versions)
+
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
@@ -134,7 +134,8 @@ async function YahooMain() {
     
     let stockList = await getCSVStockList("stockList.csv");
 
-    for (let index = 0; index <= stockList.length; index++) {
+    for (let index = 0; index <= 0; index++) {
+        // for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
         console.log("Starting " + stock.Symbol);
         try {
@@ -267,7 +268,7 @@ async function YahooMain() {
                 marketCap: financeStats.marketCap,
                 forwardPE: financeStats.forwardPE,
                 trailingPE: financeStats.trailingPE,
-                trailingEPS: financeStats.trailingEps,
+                trailingEPS: keyStats.trailingEps,
                 forwardEPS: financeStats.epsTrailingTwelveMonths,// r u sure m8?
                 averageAnalystRating: financeStats.averageAnalystRating,
                 fiftyTwoWeekLow: financeStats.fiftyTwoWeekLow,

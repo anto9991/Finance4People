@@ -1,12 +1,4 @@
-
-// Helper
-// Execute script: node apiDataLoad.js source=<string>
-// arg source identifies csv with stock list (default is stockList.csv)
-
-console.log("---------- Start load data exexution ----------\n");
-// https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
-// api_key=<YOURAPIKEY>
-console.log(process.versions)
+console.log("---------- Start series first updload ----------\n");
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
@@ -17,10 +9,9 @@ const md5 = require('md5');
 
 const apikey = env.FMP_API_KEY;
 const today = new Date;
-const agent = "Load script";
+const agent = "Series first load script";
 const index = "SP500"
 const utils = require('./utils')
-const fs = require('fs');
 
 // f stands for formatted
 const fToday = today.toISOString().split('T')[0]
@@ -57,64 +48,6 @@ let recap = {
     ok: []
 }
 
-
-async function FMPmain() {
-    for (let i = 0; i < 10; i++) {
-        let stock = stockList[i];
-        let stockId;
-        try {
-            // line up the DB
-            // Check existence
-            let getDBStock = await dbStocks.findOne({ ticker: stock.Symbol })
-
-            // If not create stock record
-            if (getDBStock == null) {
-                let insertNewStock = await dbStocks.insertOne(
-                    {
-                        ticker: stock.Symbol,
-                        name: stock.Description,
-                        sector: stock["GICS Sector"],
-                        created_at: today.getTime(),
-                        created_by: agent,
-                        series: [],
-
-                    }
-                )
-                if (!insertNewStock.acknowledged) throw new Error("Stock insert failed");
-                else stockId = insertNewStock.insertedId;
-            } else {
-                stockId = getDBStock._id;
-            }
-
-            // Add series
-            let options = {
-                params: {
-                    'apikey': apikey,
-                    'from': fOneYearAgo,
-                    'to': fToday,
-                }
-            }
-
-            let apiRes = await axios.get("https://financialmodelingprep.com/api/v3/historical-price-full/" + stock.Symbol, options)
-                .then((res) => { return res.data; })
-                .catch((err) => { console.log("Logging apiErr: \n", err); return "Error" })
-
-            for (var key in apiRes.historical) {
-                serie = apiRes.historical[key];
-                let insertSerie = await dbStocks.updateOne(
-                    { _id: stockId, "series.date": { $ne: serie.date } },
-                    { $push: { series: serie } },
-                )
-                // if query didn't update it means that data was already there
-                // if (!insertSerie.acknoledged && insertSerie.modifiedCount == 0) console.log(stock.Symbol + " for " + serie.date + " already present")
-            }
-
-        } catch (err) {
-            console.log("Logging err: \n", err)
-            // Continue but log
-        }
-    }
-}
 async function YahooMain() {
     // Create DB instance & get instance
     let dbInstance;
@@ -125,16 +58,10 @@ async function YahooMain() {
         // Break and notify
     }
     let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
-    // Get csv's SP500 stocks
-    // let csvSource = process.argv.filter(item => item.includes('source'))
-    // csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
-    
-    // console.log("Logging source: ", csvSource)
-    // let stockList = await getCSVStockList(csvSource);
     
     let stockList = await getCSVStockList("stockList.csv");
 
-    for (let index = 0; index <= stockList.length; index++) {
+    for (let index = 0; index <= 0; index++) {
         let stock = stockList[index];
         console.log("Starting " + stock.Symbol);
         try {
@@ -145,10 +72,18 @@ async function YahooMain() {
             // 1° API request: basic data like market cap etc...
             options = {
                 params: {
-                    'symbols': stock.Symbol
+                    'region': 'US',
+                    'lang': 'en-US',
+                    'includePrePost': 'false',
+                    'interval': '1wk',
+                    'useYfid': 'true',
+                    'range': '5y',
+                    'corsDomain': 'finance.yahoo.com',
+                    '.tsrc': 'finance',
                 }
             }
-            let financeStatsApi = await axios.get("https://query1.finance.yahoo.com/v7/finance/quote", options)
+            //https://query1.finance.yahoo.com/v8/finance/chart/AAPL?region=US&lang=en-US&includePrePost=false&interval=1wk&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance
+            let seriesApi = await axios.get("https://query1.finance.yahoo.com/v8/finance/chart/"+stock.Symbol, options)
                 .then((res) => {
                     return res.data;
                 })
@@ -160,153 +95,118 @@ async function YahooMain() {
                     })
                     console.log("Error: ", recap.errors[-1])
                 })
+            
+            let timestamps = seriesApi.chart.result[0].timestamp;
+            let openValues = seriesApi.chart.result[0].indicators.quote[0].open;
+            let closeValues = seriesApi.chart.result[0].indicators.quote[0].close;
+            let length = timestamps.length-1;
+            console.log("Date: ",new Date(timestamps[length]*1000),"\nTimestamp:", timestamps[length] ,"\nOpen:", openValues[length], "\nClose:", closeValues[length]);
             await utils.delay(5000)
-            let financeStats = financeStatsApi.quoteResponse.result[0]
+            break;
 
-            if (!financeStats) {
-                recap.errors.push({
-                    section: "First API request",
-                    ticker: stock.Symbol,
-                    data: "Not found in Yahoo, stocklist.csv might need an update"
-                })
-                console.log("Error: ", recap.errors[-1])
-                continue
-            }
+            // if (!financeStats) {
+            //     recap.errors.push({
+            //         section: "First API request",
+            //         ticker: stock.Symbol,
+            //         data: "Not found in Yahoo, stocklist.csv might need an update"
+            //     })
+            //     console.log("Error: ", recap.errors[-1])
+            //     continue
+            // }
 
             // Line up the DB
             // Check stock existence on DB
-            let stockId;
-            let getDBStock = await dbStocks.findOne({ ticker: stock.Symbol })
-            if (getDBStock == null) {
-                let insertNewStock = await dbStocks.insertOne(
-                    {
-                        ticker: stock.Symbol,
-                        name: stock.Description,
-                        sector: stock["GICS Sector"],
-                        created_at: today.getTime(),
-                        created_by: agent,
-                        index: index,
-                        series: [],
-                        currency: financeStats.currency,
-                        keyStatistics: []
-                    }
-                )
-                if (!insertNewStock.acknowledged || !insertNewStock.insertedId) {
-                    recap.errors.push({
-                        section: "Stock insert",
-                        ticker: stock.Symbol,
-                        data: insertNewStock
-                    })
-                    console.log("Error: ", recap.errors[-1])
-                    continue
-                }
+            
+            // let stockId;
+            // let getDBStock = await dbStocks.findOne({ ticker: stock.Symbol })
+            // if (getDBStock == null) {
+            //     let insertNewStock = await dbStocks.insertOne(
+            //         {
+            //             ticker: stock.Symbol,
+            //             name: stock.Description,
+            //             sector: stock["GICS Sector"],
+            //             created_at: today.getTime(),
+            //             created_by: agent,
+            //             index: index,
+            //             series: [],
+            //             currency: financeStats.currency,
+            //             keyStatistics: []
+            //         }
+            //     )
+            //     if (!insertNewStock.acknowledged || !insertNewStock.insertedId) {
+            //         recap.errors.push({
+            //             section: "Stock insert",
+            //             ticker: stock.Symbol,
+            //             data: insertNewStock
+            //         })
+            //         console.log("Error: ", recap.errors[-1])
+            //         continue
+            //     }
 
-                stockId = insertNewStock.insertedId;
-            } else {
-                stockId = getDBStock._id;
-            }
+            //     stockId = insertNewStock.insertedId;
+            // } else {
+            //     stockId = getDBStock._id;
+            // }
 
-            // 2° Request: more refined data like beta etc...
-            options = {
-                params: {
-                    'modules': 'defaultKeyStatistics'
-                }
-            }
-            let keyStatsApi = await axios.get("https://query1.finance.yahoo.com/v11/finance/quoteSummary/" + stock.Symbol, options)
-                .then((res) => {
-                    return res.data;
-                })
-                .catch((err) => {
-                    recap.errors.push({
-                        section: "Second API call",
-                        ticker: stock.Symbol,
-                        data: err
-                    })
-                    console.log("Error: ", recap.errors[-1])
-                    return "Error"
-                })
-            await utils.delay(5000)
+            
+            // // This request doesn't return a simple json object but a full web page (js included with json variable containing all data)
+            // let parsedData = JSON.parse(utils.subStringCustom(financialsApi, 'root.App.main', '(this));\n</script><script>', 16, -3));
+            // let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
 
-            // No particular reason for index 0, just json structure
-            let keyStats = keyStatsApi.quoteSummary.result[0].defaultKeyStatistics
+            // // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
+            // let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities
+            // let currentAssets = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentAssets
+            // let netPPE = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].propertyPlantEquipment
+            // let ebit = financials.incomeStatementHistoryQuarterly.incomeStatementHistory[0].ebit
 
-            // 3° Request: specific financials data as PPE, EBIT etc...
-            options = {
-                params: {
-                    "p": stock.Symbol
-                }
-            }
-            let financialsApi = await axios.get("https://finance.yahoo.com/quote/" + stock.Symbol + "/balance-sheet", options)
-                .then((res) => {
-                    return res.data;
-                })
-                .catch((err) => {
-                    recap.errors.push({
-                        section: "Second API call",
-                        ticker: stock.Symbol,
-                        data: err
-                    })
-                    console.log("Error: ", recap.errors[-1])
-                })
-            await utils.delay(5000)
-            // This request doesn't return a simple json object but a full web page (js included with json variable containing all data)
-            let parsedData = JSON.parse(utils.subStringCustom(financialsApi, 'root.App.main', '(this));\n</script><script>', 16, -3));
-            let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
+            // let obj = {
+            //     // key stats
+            //     beta: keyStats.beta,
+            //     enterpriseValue: keyStats.enterpriseValue,
+            //     // finance request
+            //     marketCap: financeStats.marketCap,
+            //     forwardPE: financeStats.forwardPE,
+            //     trailingPE: financeStats.trailingPE,
+            //     trailingEPS: financeStats.trailingEps,
+            //     forwardEPS: financeStats.epsTrailingTwelveMonths,// r u sure m8?
+            //     averageAnalystRating: financeStats.averageAnalystRating,
+            //     fiftyTwoWeekLow: financeStats.fiftyTwoWeekLow,
+            //     fiftyTwoWeekHigh: financeStats.fiftyTwoWeekHigh,
+            //     // financials section
+            //     currentLiabilities: currentLiabilities,
+            //     currentAssets: currentAssets,
+            //     ebit: ebit,
+            //     netPPE: netPPE
+            // }
+            // let hash = md5(obj);
 
-            // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
-            let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities
-            let currentAssets = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentAssets
-            let netPPE = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].propertyPlantEquipment
-            let ebit = financials.incomeStatementHistoryQuarterly.incomeStatementHistory[0].ebit
+            // // Check date to update DB only once a day
+            // let insertFinance = await dbStocks.updateOne(
+            //     { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } },{ "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
+            //     {
+            //         $push: {
+            //             keyStatistics: {
+            //                 date: fToday,
+            //                 data: obj,
+            //                 hash: hash
+            //             },
+            //         }
+            //     }
+            // )
 
-            let obj = {
-                // key stats
-                beta: keyStats.beta,
-                enterpriseValue: keyStats.enterpriseValue,
-                // finance request
-                marketCap: financeStats.marketCap,
-                forwardPE: financeStats.forwardPE,
-                trailingPE: financeStats.trailingPE,
-                trailingEPS: financeStats.trailingEps,
-                forwardEPS: financeStats.epsTrailingTwelveMonths,// r u sure m8?
-                averageAnalystRating: financeStats.averageAnalystRating,
-                fiftyTwoWeekLow: financeStats.fiftyTwoWeekLow,
-                fiftyTwoWeekHigh: financeStats.fiftyTwoWeekHigh,
-                // financials section
-                currentLiabilities: currentLiabilities,
-                currentAssets: currentAssets,
-                ebit: ebit,
-                netPPE: netPPE
-            }
-            let hash = md5(obj);
-
-            // Check date to update DB only once a day
-            let insertFinance = await dbStocks.updateOne(
-                { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } },{ "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
-                {
-                    $push: {
-                        keyStatistics: {
-                            date: fToday,
-                            data: obj,
-                            hash: hash
-                        },
-                    }
-                }
-            )
-
-            if (!insertFinance.acknowledged || !(insertFinance.modifiedCount > 0)) {
-                recap.errors.push({
-                    section: "Keystats insert",
-                    ticker: stock.Symbol,
-                    data: insertFinance
-                })
-                console.log("Error: ", recap.errors[-1])
-                continue
-            }
-            recap.ok.push({
-                index: index,
-                ticker: stock.Symbol,
-            })
+            // if (!insertFinance.acknowledged || !(insertFinance.modifiedCount > 0)) {
+            //     recap.errors.push({
+            //         section: "Keystats insert",
+            //         ticker: stock.Symbol,
+            //         data: insertFinance
+            //     })
+            //     console.log("Error: ", recap.errors[-1])
+            //     continue
+            // }
+            // recap.ok.push({
+            //     index: index,
+            //     ticker: stock.Symbol,
+            // })
 
         } catch (err) {
             console.log(err)
@@ -318,8 +218,6 @@ async function YahooMain() {
 
     dbInstance.close()
 
-    fs.writeFileSync("./log/" + recap.filename, JSON.stringify(recap))
-    utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
     console.log("------------------------ End ------------------------")
 }
 
