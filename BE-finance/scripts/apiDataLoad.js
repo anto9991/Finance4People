@@ -134,8 +134,7 @@ async function YahooMain() {
     
     let stockList = await getCSVStockList("stockList.csv");
 
-    for (let index = 0; index <= 0; index++) {
-        // for (let index = 0; index <= stockList.length; index++) {
+    for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
         console.log("Starting " + stock.Symbol);
         try {
