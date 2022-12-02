@@ -27,15 +27,14 @@ const ajv = new Ajv({
   removeAdditional: true,
   useDefaults: false,
   coerceTypes: true,
-  allErrors: true,
-  nullable: true,
+  allErrors: true
 });
-fastify.setSchemaCompiler(function (schema) {
+fastify.setValidatorCompiler(function (schema) {
   return ajv.compile(schema);
 });
 
 // SET CORS
-fastify.register(require("fastify-cors"), {
+fastify.register(require("@fastify/cors"), {
   origin: (origin, cb) => {
     //  Request from localhost will pass
     cb(null, true);
@@ -44,7 +43,7 @@ fastify.register(require("fastify-cors"), {
 });
 
 // SWAGGER
-fastify.register(require("fastify-swagger"), {
+fastify.register(require("@fastify/swagger"), {
   swagger: {
     info: {
       title: "Test swagger",
@@ -60,7 +59,7 @@ fastify.register(require("fastify-swagger"), {
 });
 
 // ERROR HANDLING
-fastify.register(require("fastify-sensible"));
+fastify.register(require("@fastify/sensible"));
 
 //
 // ───────────────────────────────────────────────────── SERVER CONFIGURATION ─────
@@ -138,16 +137,21 @@ fastify.setErrorHandler(function (error, request, reply) {
 
 // ROUTES USERS
 // fastify.register(require("./controller/user"));
-// fastify.register(require("./controller/contacts"));
 // fastify.register(require("./controller/templates"));
+
+fastify.register(require("./controller/stocks"));
 
 //
 // ──────────────────────────────────────────────────────────── LOAD THE SERVER ────────────────────────────────────────────────────────────
 //
-fastify.listen(3000, "0.0.0.0", async (err) => {
-  if (err) {
-    console.log(err);
-    throw err;
+const start = async () => {
+  try {
+    await fastify.listen({ port: 3000 })
+  } catch (err) {
+    // fastify.log.error(err)
+    console.log(err)
+    process.exit(1)
   }
-  console.log("listening");
-});
+}
+
+start()

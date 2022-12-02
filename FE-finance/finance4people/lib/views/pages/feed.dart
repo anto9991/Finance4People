@@ -3,10 +3,10 @@ import 'package:finance4people/stores/auth_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class Login extends StatelessWidget {
+class Feed extends StatelessWidget {
   final bool isLogged;
 
-  const Login({Key? key, this.isLogged = false}) : super(key: key);
+  const Feed({Key? key, this.isLogged = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

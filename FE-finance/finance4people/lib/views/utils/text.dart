@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 class BoldAndPlain extends StatelessWidget {
   final String bold;
   final String plain;
+  final double fontSize;
 
-  const BoldAndPlain({Key? key, required this.bold, required this.plain})
-      : super(key: key);
+  const BoldAndPlain({Key? key, required this.bold, required this.plain, this.fontSize = 14.0}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return RichText(
       overflow: TextOverflow.ellipsis,
       text: TextSpan(
-        style: const TextStyle(
-          fontSize: 14.0,
-          color: Colors.black,
+        style: TextStyle(
+          fontSize: fontSize,
+          color: Theme.of(context).textTheme.bodyMedium!.color,
         ),
         children: <TextSpan>[
           TextSpan(

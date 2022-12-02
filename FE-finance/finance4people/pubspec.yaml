@@ -41,6 +41,7 @@ dependencies:
   firebase_core: ^1.21.1
   google_sign_in: ^5.4.1
   flutter_native_splash: ^2.2.8
+  syncfusion_flutter_charts: ^20.3.58
 
 flutter_native_splash:
   color: "#ffffff"

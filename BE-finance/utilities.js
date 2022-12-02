@@ -29,8 +29,6 @@ const getRefreshToken = async (dbUsers, payload, isnew) => {
     return null;
   }
 
-  git clone --depth 1 --filter=blob:none --sparse https://github.com/anto9991/Finance4People.git
-
   const refreshToken = jwt.sign({ user: payload }, process.env.SECRET_JWT, {
     expiresIn: "90d",
   });
