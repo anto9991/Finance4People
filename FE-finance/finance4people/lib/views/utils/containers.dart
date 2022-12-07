@@ -59,9 +59,9 @@ class _StockContainerState extends State<StockContainer> {
             child: Container(
                 decoration: BoxDecoration(
                   // Background color
-                  // color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(width: 3, color: Theme.of(context).dividerColor),
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(8),
+                  // border: Border.all(width: 3, color: Theme.of(context).dividerColor),
                 ),
                 width: MediaQuery.of(context).size.width * 0.65,
                 child: Column(
@@ -88,11 +88,15 @@ class _StockContainerState extends State<StockContainer> {
                                   onPressed: () {
                                     widget.stock.setFavourite();
                                   },
-                                  icon: value == true ? const Icon(Icons.star) : const Icon(Icons.star_border_outlined));
+                                  icon: value == true
+                                      ? Icon(Icons.star, color: Theme.of(context).colorScheme.secondary)
+                                      : Icon(Icons.star_border_outlined, color: Theme.of(context).colorScheme.secondary));
                             })),
                       ],
                     ),
-                    const Divider(thickness: 1,),
+                    const Divider(
+                      thickness: 2,
+                    ),
                     // Series and info row
                     Wrap(
                       children: <Widget>[
@@ -112,10 +116,12 @@ class _StockContainerState extends State<StockContainer> {
                                         dataSource: widget.stock.series,
                                         xValueMapper: (StockSeriesChart price, _) => price.date,
                                         yValueMapper: (StockSeriesChart price, _) => price.close,
+                                        borderColor: widget.stock.series[0].close > widget.stock.series[widget.stock.series.length - 1].close ? Colors.red : Colors.green,
+                                        borderWidth: 3,
                                         gradient: LinearGradient(
                                           colors: widget.stock.series[0].close > widget.stock.series[widget.stock.series.length - 1].close
-                                              ? [Colors.red, Colors.red.withOpacity(0.5)]
-                                              : [Colors.green, Colors.green.withOpacity(0.5)],
+                                              ? [Colors.red.withOpacity(0.6), Colors.red.withOpacity(0.0)]
+                                              : [Colors.green.withOpacity(0.6), Colors.green.withOpacity(0.0)],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                         ),
@@ -163,6 +169,21 @@ class CategoryContainer extends StatelessWidget {
 
   const CategoryContainer({Key? key, required this.title, required this.stocks, required this.emptyCatString}) : super(key: key);
 
+  String getLocalization(BuildContext context, String title) {
+    switch (title) {
+      case "beta1.5":
+        return AppLocalizations.of(context)!.beta15;
+      case "beta1.2":
+        return AppLocalizations.of(context)!.beta12;
+      case "beta0.7":
+        return AppLocalizations.of(context)!.beta07;
+      case "beta0.5":
+        return AppLocalizations.of(context)!.beta05;
+      default:
+        return "Beta";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -170,23 +191,23 @@ class CategoryContainer extends StatelessWidget {
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         Row(
           children: [
-            Text(title),
-            IconButton(
-                padding: const EdgeInsets.only(bottom: 2, left: 5),
-                constraints: const BoxConstraints(minHeight: 0, minWidth: 0),
-                iconSize: 18,
-                splashColor: Colors.transparent,
-                color: Theme.of(context).colorScheme.secondary,
-                onPressed: () {
-                  showModalBottomSheet<void>(
-                      isScrollControlled: true,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      context: context,
-                      builder: (BuildContext context) {
-                        return BottomModal(child: Text(AppLocalizations.of(context)!.cat1Desc));
-                      });
-                },
-                icon: const Icon(Icons.help))
+            Text(getLocalization(context, title), style: Theme.of(context).textTheme.headline6),
+            // IconButton(
+            //     padding: const EdgeInsets.only(bottom: 2, left: 5),
+            //     constraints: const BoxConstraints(minHeight: 0, minWidth: 0),
+            //     iconSize: 18,
+            //     splashColor: Colors.transparent,
+            //     color: Theme.of(context).colorScheme.secondary,
+            //     onPressed: () {
+            //       showModalBottomSheet<void>(
+            //           isScrollControlled: true,
+            //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+            //           context: context,
+            //           builder: (BuildContext context) {
+            //             return BottomModal(child: Text(AppLocalizations.of(context)!.cat1Desc));
+            //           });
+            //     },
+            //     icon: const Icon(Icons.help))
           ],
         ),
         Expanded(

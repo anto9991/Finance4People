@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           Locale('en', ''), // English, no country code
           Locale('it', ''), // Spanish, no country code
         ],
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         darkTheme: ThemeData(
             textTheme: const TextTheme(
               bodyText1: TextStyle(color: Colors.white),
@@ -40,25 +40,26 @@ class MyApp extends StatelessWidget {
             ),
             brightness: Brightness.dark,
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xff0066ff),
+              primary: Color(0xff004a98),
               primaryContainer: Color(0xff011c50),
               secondary: Color(0xfff5be49),
               secondaryContainer: Color(0xfff6dfc8),
               // background: Color(0xff2b2b2b)
             ),
-            scaffoldBackgroundColor: const Color(0xff2b2b2b),
-            dividerColor: const Color(0xfff5be49)
-            ),
+            shadowColor: const Color(0xfff5be49),
+            selectedRowColor: const Color(0xfff5be49),
+            cardColor: const Color(0xff004a98),
+            scaffoldBackgroundColor: const Color(0xff011c50),
+            dividerColor: const Color(0xfff5be49)),
         theme: ThemeData(
             brightness: Brightness.light,
             colorScheme: const ColorScheme.light(
-                primary: Color(0xff0066ff),
-                primaryContainer: Color(0xff011c50),
-                secondary: Color(0xfff5be49),
-                secondaryContainer: Color(0xfff6dfc8)),
-            dividerColor: const Color(0xfff5be49)
-            // scaffoldBackgroundColor: const Color(0xfff6dfc8)
-            ),
+                primary: Color(0xff004a98), primaryContainer: Color(0xff011c50), secondary: Color(0xfff5be49), secondaryContainer: Color(0xfff6dfc8)),
+            cardColor: Colors.white,
+            shadowColor: Colors.black38,
+            selectedRowColor: const Color(0xff004a98),
+            dividerColor: const Color(0xfff5be49),
+            scaffoldBackgroundColor: Colors.grey[100]),
         home: Scaffold(
           body: ValueListenableBuilder(
               valueListenable: AuthStore.hasAuth,
@@ -105,29 +106,33 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-        ),
-        child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            //TODO internationalize
-            BottomNavigationBarItem(icon: Icon(Icons.waterfall_chart), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.star), label: "Favourites"),
-            BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Feed"),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Account"),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          boxShadow: [
+            BoxShadow(color: Theme.of(context).shadowColor, spreadRadius: 0, blurRadius: 10),
           ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).colorScheme.primary,
-          onTap: _onItemTapped,
-          showSelectedLabels: true,
-          // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          // type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true,
-          unselectedItemColor: Colors.grey,
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              //TODO internationalize
+              BottomNavigationBarItem(icon: Icon(Icons.waterfall_chart), label: "Home"),
+              BottomNavigationBarItem(icon: Icon(Icons.star), label: "Favourites"),
+              BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Feed"),
+              BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Account"),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Theme.of(context).selectedRowColor,
+            onTap: _onItemTapped,
+            showSelectedLabels: true,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            type: BottomNavigationBarType.fixed,
+            showUnselectedLabels: true,
+            unselectedItemColor: Colors.grey,
+          ),
         ),
       ),
     );
