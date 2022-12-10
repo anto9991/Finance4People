@@ -19,7 +19,7 @@ class Stock {
     try {
       List<StockSeriesChart> parsedSeries = [];
       var length = json["series"][0]["y5_wk1"]["close"].length;
-      //TODO get from be daily with 1 yearr
+      //TODO get from be daily with 1 year
       for (int i = (length~/2)+100; i < length; i++) {
         var date = json["series"][0]["y5_wk1"]["timestamp"][i];
         var close = json["series"][0]["y5_wk1"]["close"][i];

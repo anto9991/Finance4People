@@ -18,7 +18,7 @@ class BoldAndPlain extends StatelessWidget {
         ),
         children: <TextSpan>[
           TextSpan(
-              text: "$bold: ",
+              text: bold == "" ? "" : "$bold: ",
               style: const TextStyle(fontWeight: FontWeight.bold)),
           TextSpan(text: plain),
         ],

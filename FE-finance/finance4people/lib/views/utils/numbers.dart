@@ -7,7 +7,7 @@ class NumberUtils {
       return formatter.format(number);  
     }
     else{
-      return "N/A";
+      return "N.D.";
     }
   }
 }

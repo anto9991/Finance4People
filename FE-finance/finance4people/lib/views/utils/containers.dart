@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/pages/stock/stock_detail.dart';
+import 'package:finance4people/views/utils/area_chart.dart';
 import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/numbers.dart';
 import 'package:finance4people/views/utils/text.dart';
@@ -107,27 +108,7 @@ class _StockContainerState extends State<StockContainer> {
                             width: MediaQuery.of(context).size.width * 0.30,
                             height: MediaQuery.of(context).size.width * 0.20,
                             child: widget.stock.series.isNotEmpty == true
-                                ? SfCartesianChart(
-                                    plotAreaBorderWidth: 0,
-                                    primaryXAxis: DateTimeAxis(isVisible: false, rangePadding: ChartRangePadding.none),
-                                    primaryYAxis: NumericAxis(isVisible: false),
-                                    series: <ChartSeries>[
-                                      AreaSeries<StockSeriesChart, DateTime>(
-                                        dataSource: widget.stock.series,
-                                        xValueMapper: (StockSeriesChart price, _) => price.date,
-                                        yValueMapper: (StockSeriesChart price, _) => price.close,
-                                        borderColor: widget.stock.series[0].close > widget.stock.series[widget.stock.series.length - 1].close ? Colors.red : Colors.green,
-                                        borderWidth: 3,
-                                        gradient: LinearGradient(
-                                          colors: widget.stock.series[0].close > widget.stock.series[widget.stock.series.length - 1].close
-                                              ? [Colors.red.withOpacity(0.6), Colors.red.withOpacity(0.0)]
-                                              : [Colors.green.withOpacity(0.6), Colors.green.withOpacity(0.0)],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        ),
-                                      )
-                                    ],
-                                  )
+                                ? AreaChart(series: widget.stock.series, isReduced: true)
                                 : const Center(
                                     child: Text(
                                     //TODO add internationalization
@@ -147,16 +128,17 @@ class _StockContainerState extends State<StockContainer> {
                 ))),
       ),
       onTap: () {
-        showModalBottomSheet<void>(
-            isScrollControlled: true,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            context: context,
-            builder: (BuildContext context) {
-              return BottomModal(
-                  child: StockDetail(
-                stock: widget.stock,
-              ));
-            });
+        // showModalBottomSheet<void>(
+        //     isScrollControlled: true,
+        //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return BottomModal(child: StockDetail(stock: widget.stock));
+        //     });
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => StockDetail(stock: widget.stock)),
+        );
       },
     );
   }

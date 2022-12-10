@@ -32,10 +32,10 @@ class MyApp extends StatelessWidget {
           Locale('en', ''), // English, no country code
           Locale('it', ''), // Spanish, no country code
         ],
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.system,
         darkTheme: ThemeData(
             textTheme: const TextTheme(
-              bodyText1: TextStyle(color: Colors.white),
+              bodyText1: TextStyle(color: Color(0xfff5be49)),
               bodyText2: TextStyle(color: Colors.white),
             ),
             brightness: Brightness.dark,
@@ -52,6 +52,10 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xff011c50),
             dividerColor: const Color(0xfff5be49)),
         theme: ThemeData(
+          textTheme: const TextTheme(
+              bodyText1: TextStyle(color: Color(0xff004a98)),
+              bodyText2: TextStyle(color: Colors.black),
+            ),
             brightness: Brightness.light,
             colorScheme: const ColorScheme.light(
                 primary: Color(0xff004a98), primaryContainer: Color(0xff011c50), secondary: Color(0xfff5be49), secondaryContainer: Color(0xfff6dfc8)),

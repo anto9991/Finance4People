@@ -80,7 +80,7 @@ async function routes(fastify, options, next) {
                     if (stock.keyStatistics.marketCap) continue;
                     // Skip financial or utility
                     if (stock.sector == "Utilities" || stock.sector == "Financials") continue;
-                    let keyStatsIndex = 1;
+                    let keyStatsIndex = 10;
                     let keyStats = stock.keyStatistics[keyStatsIndex];
                     if (keyStats && keyStats.data) {
                         // Calulate earning yield

@@ -9,7 +9,7 @@ class Login extends StatelessWidget {
   const Login({Key? key, this.isLogged = false}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, [bool mounted = true]) {
     return Scaffold(
       body: Center(
         child: Column(
@@ -27,13 +27,15 @@ class Login extends StatelessWidget {
                     snackBar = const SnackBar(
                         content: Text("Login completed successfully"),
                         backgroundColor: Colors.green,
-                      );
+                      ); 
+                      if(!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }else if(auth == "Error"){
                     snackBar = const SnackBar(
-                        content: Text("Something went wrong, try again or skip login"),
+                        content: Text("SometFsihing went wrong, try again or skip login"),
                         backgroundColor: Colors.red,
                       );
+                      if(!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
                   
@@ -63,7 +65,7 @@ class Login extends StatelessWidget {
                       top: MediaQuery.of(context).size.height * 0.02,
                       bottom: MediaQuery.of(context).size.height * 0.02),
                   width: MediaQuery.of(context).size.width * 0.8,
-                  child: Text(AppLocalizations.of(context)!.skipLogin)),
+                  child: Text(AppLocalizations.of(context)!.skipLogin, style: TextStyle(color: Theme.of(context).colorScheme.secondary))),
             ),
           ],
         ),
