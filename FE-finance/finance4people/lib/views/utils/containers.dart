@@ -4,12 +4,10 @@ import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/pages/stock/stock_detail.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
-import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/numbers.dart';
 import 'package:finance4people/views/utils/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StockContainer extends StatefulWidget {
   final Stock stock;

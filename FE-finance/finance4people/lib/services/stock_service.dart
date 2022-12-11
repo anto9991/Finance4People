@@ -37,7 +37,7 @@ class StockService {
         }
         print("Flutter parsing Time: ${stopwatch.elapsed}");
         stopwatch.stop();
-        StockStore.categories = CategoriesContainer(categories: result);
+        StockStore.categoriesGreenBlatt = CategoriesContainer(categories: result);
       }else{
         throw Exception('getStocks request has failed');
       }
@@ -51,7 +51,7 @@ class StockService {
   static Future<CategoriesContainer> getFavourites() async {
     try {
       StockStore.isLoading.value = true;
-      CategoriesContainer stockStore = StockStore.categories;
+      CategoriesContainer stockStore = StockStore.categoriesGreenBlatt;
       CategoriesContainer result = CategoriesContainer(categories: []);
       int index = 0;
 

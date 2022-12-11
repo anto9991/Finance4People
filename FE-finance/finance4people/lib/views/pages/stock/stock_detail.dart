@@ -10,8 +10,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StockDetail extends StatefulWidget {
   final Stock stock;
+  final bool? fromFavourites;
 
-  const StockDetail({Key? key, required this.stock}) : super(key: key);
+  const StockDetail({Key? key, required this.stock, this.fromFavourites = false}) : super(key: key);
 
   @override
   State<StockDetail> createState() => _StockDetailState();
@@ -22,15 +23,13 @@ class _StockDetailState extends State<StockDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.stock.name),
+        // title: Text("${widget.stock.name} (${widget.stock.ticker})", overflow: TextOverflow.ellipsis),
+        title: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text("${widget.stock.name} (${widget.stock.ticker})")),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: SizedBox(
+      body: Container(
+        padding: const EdgeInsets.all(8),
         child: Wrap(alignment: WrapAlignment.start, spacing: 10, runSpacing: 5, children: <Widget>[
-          Text("${widget.stock.name} (${widget.stock.ticker})", style: Theme.of(context).textTheme.headline5, overflow: TextOverflow.ellipsis),
-          //Chart intervals row
-          const Divider(
-            thickness: 2,
-          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Wrap(

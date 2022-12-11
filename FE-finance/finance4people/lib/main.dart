@@ -1,5 +1,6 @@
 import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/auth_store.dart';
+import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
 import 'package:finance4people/views/pages/feed.dart';
 import 'package:finance4people/views/pages/login.dart';
@@ -32,9 +33,10 @@ class MyApp extends StatelessWidget {
           Locale('en', ''), // English, no country code
           Locale('it', ''), // Spanish, no country code
         ],
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         darkTheme: ThemeData(
             textTheme: const TextTheme(
+              headline5: TextStyle(color: Color(0xfff5be49)),
               bodyText1: TextStyle(color: Color(0xfff5be49)),
               bodyText2: TextStyle(color: Colors.white),
             ),
@@ -52,7 +54,8 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xff011c50),
             dividerColor: const Color(0xfff5be49)),
         theme: ThemeData(
-          textTheme: const TextTheme(
+            textTheme: const TextTheme(
+              headline5: TextStyle(color: Color(0xff004a98)),
               bodyText1: TextStyle(color: Color(0xff004a98)),
               bodyText2: TextStyle(color: Colors.black),
             ),
@@ -85,7 +88,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const List<Widget> _widgetOptions = <Widget>[Home(), Favourites(), Feed(), Login()];
+  static const List<Widget> _widgetOptions = <Widget>[Home(), Favourites(), Feed(), Account()];
 
   int _selectedIndex = 0;
 

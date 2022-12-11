@@ -1,5 +1,6 @@
 import 'package:finance4people/services/auth_service.dart';
 import 'package:finance4people/stores/auth_store.dart';
+import 'package:finance4people/views/utils/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -22,21 +23,18 @@ class Login extends StatelessWidget {
                 logoSize: 0.065,
                 onPressed: () async {
                   var auth = await AuthService().signInWithGoogle();
-                  SnackBar snackBar;
-                  if(auth == "Success"){
-                    snackBar = const SnackBar(
-                        content: Text("Login completed successfully"),
-                        backgroundColor: Colors.green,
-                      ); 
-                      if(!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }else if(auth == "Error"){
-                    snackBar = const SnackBar(
-                        content: Text("SometFsihing went wrong, try again or skip login"),
-                        backgroundColor: Colors.red,
-                      );
-                      if(!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  String message;
+                  Color color;
+                  if (auth == "Success") {
+                      message = "Login completed successfully";
+                      color = Colors.green;
+                    if (!mounted) return;
+                    CustomSnackBar.show(context, message, color);
+                  } else if (auth == "Error") {
+                      message = "Something went wrong, try again or skip login";
+                      color =  Colors.red;
+                    if (!mounted) return;
+                    CustomSnackBar.show(context, message, color);
                   }
                   
                 }),
@@ -56,14 +54,11 @@ class Login extends StatelessWidget {
                 // Navigator.pushNamed(context, "/home");
               },
               style: TextButton.styleFrom(
-                shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                shape: const BeveledRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
               ),
               child: Container(
                   padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.08,
-                      top: MediaQuery.of(context).size.height * 0.02,
-                      bottom: MediaQuery.of(context).size.height * 0.02),
+                      left: MediaQuery.of(context).size.width * 0.08, top: MediaQuery.of(context).size.height * 0.02, bottom: MediaQuery.of(context).size.height * 0.02),
                   width: MediaQuery.of(context).size.width * 0.8,
                   child: Text(AppLocalizations.of(context)!.skipLogin, style: TextStyle(color: Theme.of(context).colorScheme.secondary))),
             ),
@@ -82,14 +77,7 @@ class LoginButton extends StatelessWidget {
   final double logoSize;
   final VoidCallback onPressed;
 
-  const LoginButton(
-      {Key? key,
-      required this.color,
-      required this.name,
-      required this.textColor,
-      required this.logoSize,
-      required this.onPressed})
-      : super(key: key);
+  const LoginButton({Key? key, required this.color, required this.name, required this.textColor, required this.logoSize, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

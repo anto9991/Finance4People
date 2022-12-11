@@ -2,6 +2,7 @@ import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/containers.dart';
+import 'package:finance4people/views/utils/view_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -14,7 +15,7 @@ class Favourites extends StatefulWidget {
 class _FavouritesState extends State<Favourites> {
   late CategoriesContainer stockStore;
 
-    @override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -27,10 +28,12 @@ class _FavouritesState extends State<Favourites> {
   }
 
   @override
-    Widget build(BuildContext context) {
-    return Scaffold(
-        body: Padding(
-            padding: const EdgeInsets.all(15),
+  Widget build(BuildContext context) {
+    return ViewScaffold(
+        //TODO internationalize
+        viewName: "Favourites",
+        child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.75,
             child: ValueListenableBuilder(
                 valueListenable: StockStore.isLoading,
                 builder: ((context, value, _) {
@@ -39,7 +42,7 @@ class _FavouritesState extends State<Favourites> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (value == false) {
-                    stockStore = StockStore.favourites;
+                    stockStore = StockStore.favouritesGreenBlatt;
 
                     return ListView.builder(
                       itemCount: stockStore.categories.length,

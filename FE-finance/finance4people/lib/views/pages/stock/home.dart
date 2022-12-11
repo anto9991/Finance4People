@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (value == false) {
-                    sSCategories = StockStore.categories;
+                    sSCategories = StockStore.categoriesGreenBlatt;
                     return CustomScrollView(
                       slivers: <Widget>[
                         SliverAppBar(

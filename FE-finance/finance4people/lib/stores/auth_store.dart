@@ -10,7 +10,8 @@ class AuthStore{
 
   AuthStore._internal();
 
-  static ValueNotifier<bool> hasAuth = ValueNotifier<bool>(false); // Either is really logged or just skipped login
+  static ValueNotifier<bool> hasAuth = ValueNotifier<bool>(false); // True if went through login page
+  static bool isLogged = false; // False if has clicked on skip, true otherwise
   static String googleId = "";
   static GoogleUser gUser = GoogleUser();
 }

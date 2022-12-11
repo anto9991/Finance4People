@@ -24,23 +24,34 @@ class AuthService {
       return await _googleSignIn.signIn().then((res) {
         if (res != null) {
           return res.authentication.then((key) {
-            return AuthStore.gUser = GoogleUser(
-                displayName: res.displayName ?? "",
-                email: res.email,
-                id: res.id,
-                token: key.idToken ?? "");
+            return AuthStore.gUser = GoogleUser(displayName: res.displayName ?? "", email: res.email, id: res.id, idToken: key.idToken ?? "");
           }).then((value) {
-            if (value.token != "") {
+            print("printing idToken: ${value.idToken}");
+            if (value.idToken != "") {
               AuthStore.hasAuth.value = true;
+              AuthStore.isLogged = true;
               return "Success";
             } else {
-              return "False";
+              return "Error";
             }
           });
-        }else {
-          return "False";
+        } else {
+          return "Error";
         }
       });
+    } catch (error) {
+      print(error);
+      return "Error";
+    }
+  }
+
+  Future<String> signOutGoogle() async {
+    try {
+      await _googleSignIn.signOut();
+      AuthStore.isLogged = false;
+      AuthStore.hasAuth.value = false;
+      AuthStore.gUser = GoogleUser();
+      return "Success";
     } catch (error) {
       print(error);
       return "Error";

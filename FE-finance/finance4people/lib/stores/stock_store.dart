@@ -1,4 +1,5 @@
 import 'package:finance4people/models/categories_container.dart';
+import 'package:finance4people/models/stock.dart';
 import 'package:flutter/material.dart';
 
 class StockStore {
@@ -10,10 +11,16 @@ class StockStore {
 
   StockStore._internal();
 
-  //Properties
+  // View driven properties
   static String selectedCatType = catTypes[0];
   static List<String> catTypes = ["Greenblatt", "Sharpe"];
+  static bool betaSelected = true;
+  // Data storage properties
   static ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
-  static CategoriesContainer categories = CategoriesContainer(categories: []);
-  static CategoriesContainer favourites = CategoriesContainer(categories: []);
+  static CategoriesContainer categoriesGreenBlatt = CategoriesContainer(categories: []);
+  static CategoriesContainer favouritesGreenBlatt = CategoriesContainer(categories: []);
+  static CategoriesContainer categoriesSharpe = CategoriesContainer(categories: []);
+  static CategoriesContainer favouritesSharpe = CategoriesContainer(categories: []);
+  static List<Stock> stocksNoBeta = [];
+  static List<Stock> favouritesNoBeta = [];
 }
