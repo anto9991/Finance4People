@@ -15,17 +15,17 @@ class Favourites extends StatefulWidget {
 class _FavouritesState extends State<Favourites> {
   late CategoriesContainer stockStore;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _asyncDataLoading();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+  //     _asyncDataLoading();
+  //   });
+  // }
 
-  _asyncDataLoading() async {
-    StockStore.favourites = await StockService.getFavourites();
-  }
+  // _asyncDataLoading() async {
+  //   StockStore.favouritesGreenBlatt = await StockService.getFavourites();
+  // }
 
   @override
   Widget build(BuildContext context) {

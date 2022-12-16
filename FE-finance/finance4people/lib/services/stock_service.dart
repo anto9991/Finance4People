@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock.dart';
@@ -17,34 +18,77 @@ class StockService {
   StockService._internal();
 
   // List can be of stockCategory or just stocks
-  static Future<void> getStocks() async {
+  static Future<void> fetchFromBEStocks(String categorization, bool beta) async {
+    Stopwatch mainStopwatch = Stopwatch()..start();
+    print("calling BE");
     try {
-      Stopwatch stopwatch1 = Stopwatch()..start();
       StockStore.isLoading.value = true;
-      var response = await http.get(Uri.http('localhost:3000', '/stocks'));
-      var responseJson = jsonDecode(response.body);
-      List<StockCategory> result = [];
+      Stopwatch stopwatch1 = Stopwatch()..start();
+      
+      final queryParams = {
+        'catType': categorization, 
+        'beta': beta.toString()
+      };
+      final headers = {
+        HttpHeaders.contentTypeHeader: 'application/json'
+      };
+
+      var response = await http.get(Uri.http('localhost:3000', '/stocks', queryParams), headers: headers);
       print("Request Time: ${stopwatch1.elapsed}");
       stopwatch1.stop();
-      if(response.statusCode == 200){
-        Stopwatch stopwatch = Stopwatch()..start();
-        for(var category in responseJson){
-          StockCategory stockCatToAdd = StockCategory(title: category["title"], stocks: []);
-          for(var stock in category["stocks"]){
-            stockCatToAdd.stocks.add(Stock.fromJson(stock));
-          }
-          result.add(stockCatToAdd);
-        }
-        print("Flutter parsing Time: ${stopwatch.elapsed}");
-        stopwatch.stop();
-        StockStore.categoriesGreenBlatt = CategoriesContainer(categories: result);
-      }else{
-        throw Exception('getStocks request has failed');
+      Stopwatch stopwatch = Stopwatch()..start();
+
+      if (response.statusCode == 200) {
+        var responseJson = jsonDecode(response.body);
+        var result = [];
+        result = castStocks(beta, responseJson);
+
+        setStore(categorization, beta, result);
+      } else {
+        throw Exception('fetchFromBEStocks request has failed');
       }
+      stopwatch.stop();
+      print("Flutter parsing Time: ${stopwatch.elapsed}");
     } catch (error) {
+      if(mainStopwatch.elapsed < const Duration(seconds: 1)){
+        print("make await");
+        await Future.delayed(const Duration(seconds: 1));
+      }
       throw (Exception(error));
     } finally {
       StockStore.isLoading.value = false;
+      mainStopwatch.stop();
+      print("Total Time: ${mainStopwatch.elapsed}");
+    }
+  }
+
+  static dynamic castStocks(bool beta, dynamic responseJson) {
+    var result = [];
+    if (beta) {
+      for (var category in responseJson) {
+        StockCategory stockCatToAdd = StockCategory(title: category["title"], stocks: []);
+        for (var stock in category["stocks"]) {
+          stockCatToAdd.stocks.add(Stock.fromJson(stock));
+        }
+        result.add(stockCatToAdd);
+      }
+    } else {}
+    return result;
+  }
+
+  static void setStore(String categorization, bool beta, dynamic data) {
+    if (categorization == "Greenblatt") {
+      if (beta) {
+        StockStore.categoriesGreenBlatt = CategoriesContainer(categories: data);
+      } else {
+        StockStore.greenblattNoBeta = data;
+      }
+    } else if (categorization == "Sharpe") {
+      if (beta) {
+        StockStore.categoriesSharpe = CategoriesContainer(categories: data);
+      } else {
+        StockStore.sharpeNoBeta = data;
+      }
     }
   }
 
@@ -71,58 +115,32 @@ class StockService {
       StockStore.isLoading.value = false;
     }
   }
-  // static Future<List<StockCategory>> oldGetStocks() async {
-  //   try {
-  //     StockStore.isLoading.value = true;
-  //     // await Future.delayed(Duration(seconds: 3));
-  //     var stocks = [
-  //       StockCategory.fromJson({
-  //         "title": "Category 1",
-  //         "stocks": [
-  //           Stock.fromJson({"name": "Apple", "ticker": "AAPL", "value": 200})
-  //         ]
-  //       }),
-  //       StockCategory.fromJson({
-  //         "title": "Category 2",
-  //         "stocks": [
-  //           Stock.fromJson({"name": "Tesla1", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla2", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla3", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla4", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla5", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla6", "ticker": "TSLA", "value": 700})
-  //         ]
-  //       }),
-  //       StockCategory.fromJson({
-  //         "title": "Category 3",
-  //         "stocks": [
-  //           Stock.fromJson({"name": "Apple", "ticker": "AAPL", "value": 200})
-  //         ]
-  //       }),
-  //       StockCategory.fromJson({
-  //         "title": "Category 4",
-  //         "stocks": [
-  //           Stock.fromJson({"name": "Tesla1", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla2", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla3", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla4", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla5", "ticker": "TSLA", "value": 700}),
-  //           Stock.fromJson({"name": "Tesla6", "ticker": "TSLA", "value": 700})
-  //         ]
-  //       })
-  //     ];
-  //     // final response = await http.get(Uri.parse('some-url'));
 
-  //     // if(response.statusCode == 200){
-  //     //   return Stock.fromJson(jsonDecode(response.body));
-  //     // }else{
-  //     //   throw Exception('FetchAlbum request has failed');
-  //     // }
-  //     return stocks;
-  //   } catch (error) {
-  //     throw (Exception(error));
-  //   } finally {
-  //     StockStore.isLoading.value = false;
-  //   }
-  // }
+  static Future<dynamic> getStocks() async {
+    if (StockStore.betaSelected) {
+      if (StockStore.selectedCatType == "Greenblatt") {
+        if (StockStore.categoriesGreenBlatt.categories.isEmpty) {
+          await fetchFromBEStocks("Greenblatt", true).then((value) => StockStore.categoriesGreenBlatt);
+        }
+        return StockStore.categoriesGreenBlatt;
+      } else if (StockStore.selectedCatType == "Sharpe") {
+        if (StockStore.categoriesSharpe.categories.isEmpty) {
+          await fetchFromBEStocks("Sharpe", true).then((value) => StockStore.categoriesSharpe);
+        }
+        return StockStore.categoriesSharpe;
+      }
+    } else {
+      if (StockStore.selectedCatType == "Greenblatt") {
+        if (StockStore.greenblattNoBeta.isEmpty) {
+          await fetchFromBEStocks("Greenblatt", false).then((value) => StockStore.greenblattNoBeta);
+        }
+        return StockStore.greenblattNoBeta;
+      } else if (StockStore.selectedCatType == "Sharpe") {
+        if (StockStore.sharpeNoBeta.isEmpty) {
+          await fetchFromBEStocks("Sharpe", false).then((value) => StockStore.sharpeNoBeta);
+        }
+        return StockStore.sharpeNoBeta;
+      }
+    }
+  }
 }

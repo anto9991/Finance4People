@@ -16,11 +16,13 @@ class StockStore {
   static List<String> catTypes = ["Greenblatt", "Sharpe"];
   static bool betaSelected = true;
   // Data storage properties
-  static ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
+  static ValueNotifier<bool> isLoading = ValueNotifier<bool>(true);
   static CategoriesContainer categoriesGreenBlatt = CategoriesContainer(categories: []);
   static CategoriesContainer favouritesGreenBlatt = CategoriesContainer(categories: []);
   static CategoriesContainer categoriesSharpe = CategoriesContainer(categories: []);
   static CategoriesContainer favouritesSharpe = CategoriesContainer(categories: []);
-  static List<Stock> stocksNoBeta = [];
-  static List<Stock> favouritesNoBeta = [];
+  static List<Stock> greenblattNoBeta = [];
+  static List<Stock> favouritesGreenblattNoBeta = [];
+  static List<Stock> sharpeNoBeta = [];
+  static List<Stock> favouritesSharpeNoBeta = [];
 }

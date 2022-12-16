@@ -1,20 +1,19 @@
 import 'dart:convert';
 
-import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/models/stock_category.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-class StockService {
+class FeedService {
   static final host = DotEnv().env['HOST'];
-  static final StockService stockService = StockService._internal();
+  static final FeedService stockService = FeedService._internal();
 
-  factory StockService() {
+  factory FeedService() {
     return stockService;
   }
-  StockService._internal();
+  FeedService._internal();
 
   static Future<dynamic> getStocks() async {
     try {

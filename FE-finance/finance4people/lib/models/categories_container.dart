@@ -1,6 +1,4 @@
-import 'package:finance4people/models/stock_category.dart';
-
-class CategoriesContainer{
+class CategoriesContainer {
   final List categories;
 
   CategoriesContainer({

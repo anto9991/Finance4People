@@ -1,4 +1,3 @@
-import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
@@ -99,18 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _asyncDataLoading();
-    });
-  }
-
-  _asyncDataLoading() async {
-    await StockService.getStocks();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
@@ -144,30 +131,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: Center(
-  //       child: _widgetOptions.elementAt(_selectedIndex),
-  //     ),
-  //     bottomNavigationBar: BottomNavigationBar(
-  //       items: const <BottomNavigationBarItem>[
-  //         //TODO internationalize
-  //         BottomNavigationBarItem(icon: Icon(Icons.waterfall_chart), label: "Home"),
-  //         BottomNavigationBarItem(icon: Icon(Icons.star), label: "Favourites"),
-  //         BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Feed"),
-  //         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Account"),
-  //       ],
-  //       currentIndex: _selectedIndex,
-  //       selectedItemColor: Theme.of(context).colorScheme.primary,
-  //       onTap: _onItemTapped,
-  //       showSelectedLabels: true,
-  //       // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-  //       // type: BottomNavigationBarType.fixed,
-  //       showUnselectedLabels: true,
-  //       unselectedItemColor: Colors.grey,
-  //     ),
-  //   );
-  // }
 }

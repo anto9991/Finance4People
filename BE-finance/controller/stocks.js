@@ -31,11 +31,14 @@ async function routes(fastify, options, next) {
         url: "/stocks",
         method: "GET",
         querystring: {
-            type: "string",
+            type: "object",
             required: ["catType"],
             properties: {
                 catType: {
                     type: "string"
+                },
+                beta: {
+                    type: "boolean"
                 }
             }
         },
@@ -63,8 +66,9 @@ async function routes(fastify, options, next) {
         },
         // preValidation: [fastify.authForced],
         handler: async (request, reply) => {
-            let queryString = request.query;
             let catType = request.query.catType;
+            let beta = request.query.beta;
+            let result = [];
             let categories = [
                 { title: "beta1.5", stocks: [] },
                 { title: "beta1.2", stocks: [] },
@@ -113,20 +117,23 @@ async function routes(fastify, options, next) {
                         
                         // Return just one specific date
                         stock.keyStatistics = stock.keyStatistics[keyStatsIndex]
-
-                        if (keyStats.data.beta.raw != undefined) {
-                            if (keyStats.data.beta.raw > 1.5) {
-                                categories[0].stocks.push(stock);
+                        if(beta){
+                            if (keyStats.data.beta.raw != undefined) {
+                                if (keyStats.data.beta.raw > 1.5) {
+                                    categories[0].stocks.push(stock);
+                                }
+                                if (keyStats.data.beta.raw > 1.0 && keyStats.data.beta.raw < 1.5) {
+                                    categories[1].stocks.push(stock);
+                                }
+                                if (keyStats.data.beta.raw > 0.5 && keyStats.data.beta.raw < 1.0) {
+                                    categories[2].stocks.push(stock);
+                                }
+                                if (keyStats.data.beta.raw < 0.5) {
+                                    categories[3].stocks.push(stock);
+                                }
                             }
-                            if (keyStats.data.beta.raw > 1.0 && keyStats.data.beta.raw < 1.5) {
-                                categories[1].stocks.push(stock);
-                            }
-                            if (keyStats.data.beta.raw > 0.5 && keyStats.data.beta.raw < 1.0) {
-                                categories[2].stocks.push(stock);
-                            }
-                            if (keyStats.data.beta.raw < 0.5) {
-                                categories[3].stocks.push(stock);
-                            }
+                        }else{
+                            result.push(stock);
                         }
                     }
                 }
@@ -135,8 +142,9 @@ async function routes(fastify, options, next) {
                     let category = categories[catIndex];
                     category.stocks.sort((a, b) => ((b.earningYield + b.returnOnCapital) - (a.earningYield + a.returnOnCapital)));
                 }
-                return respF(reply, categories);
+                return respF(reply, beta ? categories : result);
             }
+            console.log("\n---------------------This is beta", beta, "---------------------\n");
         },
     });
 
