@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:finance4people/stores/auth_store.dart';
 import 'package:flutter/material.dart';
 
 class Stock {
+  final String id;
   final String name;
   final String ticker;
   final String sector;
@@ -13,7 +15,7 @@ class Stock {
   List<StockSeriesChart> series;
 
   Stock(
-      {required this.name, required this.ticker, required this.sector, required this.currency, required this.keyStats, required this.series, required this.isFavourite});
+      {required this.id, required this.name, required this.ticker, required this.sector, required this.currency, required this.keyStats, required this.series, required this.isFavourite});
 
   factory Stock.fromJson(Map<String, dynamic> json) {
     try {
@@ -29,13 +31,14 @@ class Stock {
       }
 
       return Stock(
+          id: json['_id'],
           name: json['name'],
           ticker: json['ticker'],
           currency: json['currency'],
           sector: json['sector'],
           keyStats: jsonEncode(json['keyStatistics']),
           series: parsedSeries,
-          isFavourite: ValueNotifier<bool>(json['isFavourite'] ?? false));
+          isFavourite: ValueNotifier<bool>(AuthStore.isLogged ? AuthStore.user.favourites.contains(json["_id"]) : false));
     } catch (error) {
       throw (Exception(error));
     }

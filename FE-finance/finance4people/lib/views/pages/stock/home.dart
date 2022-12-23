@@ -1,6 +1,4 @@
 import 'package:finance4people/models/categories_container.dart';
-import 'package:finance4people/models/stock_category.dart';
-import 'package:finance4people/services/feed_service.dart';
 import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/bottom_modal.dart';
@@ -17,27 +15,19 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  dynamic data;
-  bool withBeta = true;
-  String selectedCatType = StockStore.selectedCatType;
   bool dataLoadingError = false;
 
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    // });
     _asyncDataLoading();
   }
 
   _asyncDataLoading() async {
-    try {
-      print("Async data loading");
-      data = await StockService.getStocks();
-      print("This is data: $data");
-    } catch (_) {
-      dataLoadingError = true;
-    }
+    await StockService.getStocks(null, null);
+    if (!mounted) return;
+    //Force widget refresh
+    setState(() {});
   }
 
   @override
@@ -123,12 +113,10 @@ class _HomeState extends State<Home> {
                                             const Text("Beta: ", style: TextStyle(color: Colors.white)),
                                             Switch(
                                                 activeColor: Theme.of(context).colorScheme.secondary,
-                                                value: withBeta,
+                                                value: StockStore.betaSelected,
                                                 onChanged: (bool newVal) {
                                                   setState(() {
-                                                    withBeta = newVal;
-                                                    StockStore.betaSelected = newVal;
-                                                    StockService.getStocks();
+                                                    StockService.getStocks(null, newVal);
                                                   });
                                                 }),
                                             IconButton(
@@ -155,36 +143,42 @@ class _HomeState extends State<Home> {
                             ]),
                           ),
                           const SliverPadding(padding: EdgeInsets.all(7)),
-                          if (data is CategoriesContainer) ...[
+                          if (StockStore.data is CategoriesContainer) ...[
                             SliverList(
-                                delegate: SliverChildBuilderDelegate(childCount: (data as CategoriesContainer).categories.length, (context, index) {
+                                delegate: SliverChildBuilderDelegate(childCount: (StockStore.data as CategoriesContainer).categories.length, (context, index) {
                               return CategoryContainer(
-                                  title: (data as CategoriesContainer).categories[index].title,
-                                  stocks: (data as CategoriesContainer).categories[index].stocks,
+                                  title: (StockStore.data as CategoriesContainer).categories[index].title,
+                                  stocks: (StockStore.data as CategoriesContainer).categories[index].stocks,
                                   emptyCatString: AppLocalizations.of(context)!.noStocksInCat);
                             }))
-                          ] else if (data is List<StockCategory>) ...[
-                            SliverList(
-                                delegate: SliverChildBuilderDelegate(childCount: 1, (context, index) {
-                              return const Center(child: Text("Error 1"));
-                            }))
+                          ] else if (StockStore.data is List<dynamic>) ...[
+                            SliverGrid.count(
+                                crossAxisCount: 1,
+                                childAspectRatio: 2.7,
+                                mainAxisSpacing: 0,
+                                children: List.generate((StockStore.data as List).length, (index) {
+                                  return Center(
+                                      child: SizedBox(
+                                          height: MediaQuery.of(context).size.height * 0.16,
+                                          width: MediaQuery.of(context).size.width * 0.7,
+                                          child: StockContainer(stock: (StockStore.data as List)[index])));
+                                }))
                           ]
                         ],
                       );
                     }
                   }
                   return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                    const Padding(padding: EdgeInsets.only(bottom: 10), child: Text("Something went wrong while loading data\nPlease try again", style: TextStyle(fontSize: 18),textAlign: TextAlign.center)),
-                    IconButtonText
-                    (
+                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    const Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Text("Something went wrong while loading data\nPlease try again", style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
+                    IconButtonText(
                       icon: const Icon(Icons.refresh),
                       text: "Refresh",
                       onPressed: () {
                         setState(() {
-                          StockService.getStocks();
+                          StockService.getStocks(null, null);
                           dataLoadingError = false;
                         });
                       },

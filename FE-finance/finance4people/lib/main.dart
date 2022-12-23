@@ -1,3 +1,4 @@
+import 'package:finance4people/services/auth_service.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
@@ -95,6 +96,18 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _asyncDataLoading();
+    });
+  }
+
+  _asyncDataLoading() async {
+    await AuthService().getBEUser();
   }
 
   @override

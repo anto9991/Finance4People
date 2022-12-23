@@ -8,10 +8,9 @@ async function routes(fastify, options, next) {
         .collection(process.env.COLLECTION);
 
     // // DB USERS
-    // const dbUsers = fastify.mongo
-    //     .db(process.env.DATABASE)
-    //     .collection(process.env.COLLECTION);
-
+    const dbUsers = fastify.mongo
+        .db(process.env.DB_NAME)
+        .collection(process.env.USER_COLLECTION);
 
     const stockSchema = {
         type: 'object',
@@ -67,7 +66,7 @@ async function routes(fastify, options, next) {
         // preValidation: [fastify.authForced],
         handler: async (request, reply) => {
             let catType = request.query.catType;
-            let beta = request.query.beta;
+            let beta = request.query.beta === 'true' ? true : false;
             let result = [];
             let categories = [
                 { title: "beta1.5", stocks: [] },
@@ -76,7 +75,17 @@ async function routes(fastify, options, next) {
                 { title: "beta0.5", stocks: [] },
             ]
             if (catType == null || catType == "Greenblatt") {
+                
+                var start1 = Date.now();
+
+                let dataCheck = await db.find({});
+                
+                console.log("\n----\nData query info", dataCheck, "\n----\n")
+                var end1 = Date.now();
+                console.log("\n---\nTime to get data from DB", end1 - start1);
+                
                 let data = await db.find({}).toArray();
+                var start2 = Date.now();
 
                 for (let index in data) {
                     let stock = data[index];
@@ -114,10 +123,10 @@ async function routes(fastify, options, next) {
                         stock.keyStatistics[keyStatsIndex].data.earningYield = earningYield * 100;
                         stock.keyStatistics[keyStatsIndex].data.returnOnCapital = returnOnCapital * 100;
 
-                        
+
                         // Return just one specific date
                         stock.keyStatistics = stock.keyStatistics[keyStatsIndex]
-                        if(beta){
+                        if (beta) {
                             if (keyStats.data.beta.raw != undefined) {
                                 if (keyStats.data.beta.raw > 1.5) {
                                     categories[0].stocks.push(stock);
@@ -132,25 +141,166 @@ async function routes(fastify, options, next) {
                                     categories[3].stocks.push(stock);
                                 }
                             }
-                        }else{
+                        } else {
                             result.push(stock);
                         }
                     }
                 }
+                var end2 = Date.now();
+                console.log("Time to format data", end2 - start2);
                 // Sort by best EY and ROC
+                var start3 = Date.now();
                 for (let catIndex in categories) {
                     let category = categories[catIndex];
                     category.stocks.sort((a, b) => ((b.earningYield + b.returnOnCapital) - (a.earningYield + a.returnOnCapital)));
                 }
+                var end3 = Date.now();
+                console.log("Time to format data", end3 - start3);
+                console.log("\n---------------------This is beta", beta, "---------------------\n");
+
                 return respF(reply, beta ? categories : result);
             }
-            console.log("\n---------------------This is beta", beta, "---------------------\n");
         },
     });
 
+    fastify.route({
+        url: "/stocks/:stockId/favourite",
+        method: "POST",
+        // schema: {
+        //     body: {
+        //         type: "object",
+        //         required: ["value"],
+        //         properties: {
+        //             value: {
+        //                 type: "boolean",
+        //             }
+        //         }
+        //     },
+        //     response: {
+        //         200: {
+        //             type: "object",
+        //             properties: {
+        //                 message: { type: "string" },
+        //             },
+        //         },
+        //     },
+        // },
+        preValidation: [fastify.checkAuth],
+        handler: async (request, reply) => {
+            try {
+                const { stockId } = request.params;
+                let inputData = request.body;
+                let user = request.data;
+
+                // If user does not exist, create it
+                let dbUser = await dbUsers.findOne({ _id: user.sub });
+
+                if (dbUser == null) {
+                    let newUser = {
+                        _id: user.sub,
+                        email: user.email,
+                        name: user.name,
+                        locale: user.locale,
+                        picture: user.picture,
+                        favourites: [],
+                    };
+                    let insertUser = await dbUsers.insertOne(newUser);
+                    if (!insertUser.acknowledged || (insertUser.insertedId != user.sub)) {
+                        throw fastify.httpErrors.internalServerError("Something went wrong while creating user");
+                    }
+                    dbUser = newUser;
+                }
+                if (inputData.value) {
+                    let setFavourite = await dbUsers.updateOne(
+                        { _id: user.sub },
+                        { "$push": { "favourites": stockId } }
+                    );
+                    if (!setFavourite.acknowledged || !(setFavourite.modifiedCount > 0)) {
+                        throw fastify.httpErrors.internalServerError("Something went wrong while updating favourites");
+                    }
+                } else {
+                    let unsetFavourite = await dbUsers.updateOne(
+                        { _id: user.sub },
+                        { "$pull": { "favourites": stockId } }
+                    );
+                    if (!unsetFavourite.acknowledged || !(unsetFavourite.modifiedCount > 0)) {
+                        throw fastify.httpErrors.internalServerError("Something went wrong while updating favourites");
+                    }
+                }
+                //   throw fastify.httpErrors.notFound();
+                return respF(reply, { message: "Success" });
+            } catch (error) {
+                console.error(error);
+                throw fastify.httpErrors.internalServerError(error);
+            }
+        },
+    });
     //
     // ───────────────────────────────────────────── DELETE CONTACT ─────
     //
+    // Basic post
+    // fastify.route({
+    //     url: "/routine/template",
+    //     method: "POST",
+    //     schema: {
+    //       body: {
+    //         type: "object",
+    //         required: ["id", "templates"],
+    //         properties: {
+    //           id: {
+    //             type: "string",
+    //           },
+    //           templates: {
+    //             type: "array",
+    //             items: {
+    //               type: "object",
+    //               required: ["id", "hour", "step", "sendAfter"],
+    //               properties: {
+    //                 id: {
+    //                   type: "string",
+    //                 },
+    //                 complete: {
+    //                   type: "boolean",
+    //                 },
+    //                 hour: {
+    //                   type: "number",
+    //                   min: 0,
+    //                   max: 23,
+    //                 },
+    //                 step: {
+    //                   type: "number",
+    //                   min: 0,
+    //                 },
+    //                 sendAfter: {
+    //                   type: "number",
+    //                   min: 0,
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //       },
+    //       response: {
+    //         200: {
+    //           type: "object",
+    //           properties: {
+    //             message: { type: "string" },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     preValidation: [fastify.authForced],
+    //     handler: async (request, reply) => {
+    //       try {
+    //         let inputData = request.body;
+    //         //   throw fastify.httpErrors.notFound();
+    //       } catch (error) {
+    //         console.error(error);
+    //         throw fastify.httpErrors.badRequest(error);
+    //       }
+    //     },
+    //   });
+
     // fastify.route({
     //     url: "/contact",
     //     method: "DELETE",
@@ -285,7 +435,7 @@ async function routes(fastify, options, next) {
     //                                     ? inputData.groups
     //                                     : []
     //                                 : data.groups,
-    //                             ["updatedAt"]: new Date().toISOString(),
+    //                             ["updatedAt"]: new Date()().toISOString(),
     //                         },
     //                     }
     //                 );

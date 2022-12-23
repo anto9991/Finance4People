@@ -136,10 +136,10 @@ fastify.setErrorHandler(function (error, request, reply) {
 // });
 
 // ROUTES USERS
-// fastify.register(require("./controller/user"));
 // fastify.register(require("./controller/templates"));
 
 fastify.register(require("./controller/stocks"));
+fastify.register(require("./controller/user"));
 
 //
 // ──────────────────────────────────────────────────────────── LOAD THE SERVER ────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:finance4people/models/stock.dart';
+import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/pages/stock/stock_detail.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
@@ -86,6 +87,7 @@ class _StockContainerState extends State<StockContainer> {
                                   splashColor: Colors.transparent,
                                   onPressed: () {
                                     widget.stock.setFavourite();
+                                    StockService.setFavourite(widget.stock.id, widget.stock.isFavourite.value);
                                   },
                                   icon: value == true
                                       ? Icon(Icons.star, color: Theme.of(context).colorScheme.secondary)
@@ -98,12 +100,14 @@ class _StockContainerState extends State<StockContainer> {
                     ),
                     // Series and info row
                     Wrap(
+                      alignment: WrapAlignment.start,
                       children: <Widget>[
                         Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
+                              // border: Border.all(width: 1, color: Theme.of(context).dividerColor),
                             ),
-                            width: MediaQuery.of(context).size.width * 0.30,
+                            width: MediaQuery.of(context).size.width * 0.35,
                             height: MediaQuery.of(context).size.width * 0.20,
                             child: widget.stock.series.isNotEmpty == true
                                 ? AreaChart(series: widget.stock.series, isReduced: true)
@@ -114,6 +118,9 @@ class _StockContainerState extends State<StockContainer> {
                                     style: TextStyle(color: Colors.grey),
                                   ))),
                         SizedBox(
+                          // decoration: BoxDecoration(
+                          //   border: Border.all(width: 1, color: Theme.of(context).dividerColor),
+                          // ),
                           width: MediaQuery.of(context).size.width * 0.30,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,11 +150,12 @@ class _StockContainerState extends State<StockContainer> {
 }
 
 class CategoryContainer extends StatelessWidget {
+  final bool favouritesPage;
   final String title;
-  final List<Stock> stocks;
+  final List<dynamic> stocks;
   final String emptyCatString;
 
-  const CategoryContainer({Key? key, required this.title, required this.stocks, required this.emptyCatString}) : super(key: key);
+  const CategoryContainer({Key? key, required this.title, required this.stocks, required this.emptyCatString, this.favouritesPage = false}) : super(key: key);
 
   String getLocalization(BuildContext context, String title) {
     switch (title) {

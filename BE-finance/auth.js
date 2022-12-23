@@ -1,43 +1,32 @@
 const fastifyPlugin = require("fastify-plugin");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.CLIENT_ID)
 
-// CREATE THE PLUGIN FOR AUTHENTICATION
+// Plugin for authentication
+// module.exports = fastifyPlugin()
 module.exports = fastifyPlugin(async (fastify, opts) => {
-  const db = fastify.mongo
-    .db(process.env.DATABASE)
-    .collection(process.env.COLLECTION);
 
-  const dbUsers = fastify.mongo.db(process.env.DATABASE).collection("users");
-
-  // Auth for the security api
-  async function authForced(request, reply, done) {
-    // Take the authorization token
-    let token;
-    if (request.headers.Authorization) {
-      token = request.headers.Authorization.split(" ")[1];
-    } else if (request.headers.authorization) {
-      token = request.headers.authorization.split(" ")[1];
-    }
-
-    if (!token) {
-      throw fastify.httpErrors.unauthorized("Unauthorized");
-    }
-
-    // Verify the token and if is avaible set it
+  async function checkAuth(request, reply, done) {
     try {
-      const decoded = jwt.verify(token, process.env.SECRET_JWT);
-      if (decoded && decoded.user) {
-        request.data = decoded.user;
-      } else {
+      var token = request.headers.authorization.split(" ")[1];
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        requiredAudience: process.env.CLIENT_ID
+      })
+
+      if (!token) {
         throw fastify.httpErrors.unauthorized("Unauthorized");
       }
+      const payload = ticket.getPayload();
+      request.data = payload;
     } catch (err) {
+      console.log(err)
       throw fastify.httpErrors.unauthorized("Unauthorized");
     }
   }
 
-  // Auth security
-  fastify.decorate("authForced", authForced);
+  fastify.decorate("checkAuth", checkAuth);
 });
 
 // // Reader Tracker auth

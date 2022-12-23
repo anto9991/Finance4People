@@ -20,7 +20,8 @@ class _AccountState extends State<Account> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             if (AuthStore.isLogged) ...[AccountButton(text: "Logout", icon: const Icon(Icons.logout), onPressed: (() {
-              AuthService.authService.signOutGoogle();
+              
+              AuthService.authService.signOut();
             }))]
             else...[ AccountButton(text: "Login", icon: const Icon(Icons.login), onPressed: (() {
                AuthStore.hasAuth.value = false;

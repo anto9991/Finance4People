@@ -124,7 +124,7 @@ async function YahooMain() {
         console.log("Logging err: \n", err);
         // Break and notify
     }
-    let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
+    let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
     // Get csv's SP500 stocks
     // let csvSource = process.argv.filter(item => item.includes('source'))
     // csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
@@ -161,7 +161,7 @@ async function YahooMain() {
                     console.log("Error: ", recap.errors[-1])
                 })
             await utils.delay(5000)
-            let financeStats = financeStatsApi.quoteResponse.result[0]
+            let financeStats = financeStatsApi.quoteResponse.result[0];
 
             if (!financeStats) {
                 recap.errors.push({
@@ -186,9 +186,9 @@ async function YahooMain() {
                         created_at: today.getTime(),
                         created_by: agent,
                         index: index,
-                        series: [],
+                        series: {},
                         currency: financeStats.currency,
-                        keyStatistics: []
+                        keyStatistics: {}
                     }
                 )
                 if (!insertNewStock.acknowledged || !insertNewStock.insertedId) {
@@ -248,10 +248,14 @@ async function YahooMain() {
                     })
                     console.log("Error: ", recap.errors[-1])
                 })
-            await utils.delay(5000)
+            // await utils.delay(5000)
+
             // This request doesn't return a simple json object but a full web page (js included with json variable containing all data)
             let parsedData = JSON.parse(utils.subStringCustom(financialsApi, 'root.App.main', '(this));\n</script><script>', 16, -3));
             let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
+
+            // console.log("\n\n----\nLogging financialsApi: ", financialsApi, "\n----\n\n")
+            fs.writeFileSync("./financialsApiRes", financialsApi)
 
             // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
             let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities
@@ -284,7 +288,7 @@ async function YahooMain() {
             let insertFinance = await dbStocks.updateOne(
                 { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } },{ "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
                 {
-                    $push: {
+                    $set: {
                         keyStatistics: {
                             date: fToday,
                             data: obj,

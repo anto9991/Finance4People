@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:finance4people/models/google_user.dart';
+import 'package:finance4people/models/user.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import './env.dart' as env;
 
 class AuthService {
   static final AuthService authService = AuthService._internal();
@@ -11,8 +17,6 @@ class AuthService {
   AuthService._internal();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Optional clientId
-    // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
     scopes: <String>[
       'email',
       'https://www.googleapis.com/auth/contacts.readonly',
@@ -26,7 +30,6 @@ class AuthService {
           return res.authentication.then((key) {
             return AuthStore.gUser = GoogleUser(displayName: res.displayName ?? "", email: res.email, id: res.id, idToken: key.idToken ?? "");
           }).then((value) {
-            print("printing idToken: ${value.idToken}");
             if (value.idToken != "") {
               AuthStore.hasAuth.value = true;
               AuthStore.isLogged = true;
@@ -35,9 +38,8 @@ class AuthService {
               return "Error";
             }
           });
-        } else {
-          return "Error";
         }
+        else {return "";}
       });
     } catch (error) {
       print(error);
@@ -48,13 +50,48 @@ class AuthService {
   Future<String> signOutGoogle() async {
     try {
       await _googleSignIn.signOut();
-      AuthStore.isLogged = false;
-      AuthStore.hasAuth.value = false;
-      AuthStore.gUser = GoogleUser();
       return "Success";
     } catch (error) {
       print(error);
       return "Error";
+    }
+  }
+
+  Future<String> signOut() async{
+    try {
+      String gSignOut = await signOutGoogle();
+      if(gSignOut == "Error"){
+        throw Error();
+      }
+      AuthStore.isLogged = false;
+      AuthStore.hasAuth.value = false;
+      AuthStore.gUser = GoogleUser();
+      AuthStore.user = User();
+      AuthStore.googleId = "";
+      return "Success";
+    } catch (error) {
+      print(error);
+      return "Error";
+    }
+  }
+
+  Future<void> getBEUser() async {
+    try {
+      if (AuthStore.isLogged) {
+        var response = await http.get(
+          Uri.http(env.host, '/user'),
+          headers: <String, String>{
+            HttpHeaders.authorizationHeader: 'Bearer ${AuthStore.gUser.idToken}',
+            HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+          },
+        );
+        if (response.statusCode == 200) {
+          var responseJson = jsonDecode(response.body);
+          AuthStore.user = User.fromJson(responseJson["user"]);
+        }
+      }
+    } catch (error) {
+      print(error);
     }
   }
 }
