@@ -326,7 +326,7 @@ class ChartDateButton extends StatelessWidget {
       child: TextButton(
         style: ButtonStyle(overlayColor: MaterialStateProperty.all(Colors.transparent)),
         onPressed: onPressed,
-        child: Text(text, style: TextStyle(color: Theme.of(context).textTheme.bodyText1!.color)),
+        child: Text(text, style: TextStyle(color: Theme.of(context).textTheme.headline1!.color)),
       ),
     );
   }

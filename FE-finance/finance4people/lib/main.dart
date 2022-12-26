@@ -1,4 +1,5 @@
 import 'package:finance4people/services/auth_service.dart';
+import 'package:finance4people/stores/app_store.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
@@ -19,63 +20,69 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', ''), // English, no country code
-          Locale('it', ''), // Spanish, no country code
-        ],
-        themeMode: ThemeMode.light,
-        darkTheme: ThemeData(
-            textTheme: const TextTheme(
-              headline5: TextStyle(color: Color(0xfff5be49)),
-              bodyText1: TextStyle(color: Color(0xfff5be49)),
-              bodyText2: TextStyle(color: Colors.white),
-            ),
-            brightness: Brightness.dark,
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xff004a98),
-              primaryContainer: Color(0xff011c50),
-              secondary: Color(0xfff5be49),
-              secondaryContainer: Color(0xfff6dfc8),
-              // background: Color(0xff2b2b2b)
-            ),
-            shadowColor: const Color(0xfff5be49),
-            selectedRowColor: const Color(0xfff5be49),
-            cardColor: const Color(0xff004a98),
-            scaffoldBackgroundColor: const Color(0xff011c50),
-            dividerColor: const Color(0xfff5be49)),
-        theme: ThemeData(
-            textTheme: const TextTheme(
-              headline5: TextStyle(color: Color(0xff004a98)),
-              bodyText1: TextStyle(color: Color(0xff004a98)),
-              bodyText2: TextStyle(color: Colors.black),
-            ),
-            brightness: Brightness.light,
-            colorScheme: const ColorScheme.light(
-                primary: Color(0xff004a98), primaryContainer: Color(0xff011c50), secondary: Color(0xfff5be49), secondaryContainer: Color(0xfff6dfc8)),
-            cardColor: Colors.white,
-            shadowColor: Colors.black38,
-            selectedRowColor: const Color(0xff004a98),
-            dividerColor: const Color(0xfff5be49),
-            scaffoldBackgroundColor: Colors.grey[100]),
-        home: Scaffold(
-          body: ValueListenableBuilder(
-              valueListenable: AuthStore.hasAuth,
-              builder: ((context, value, _) {
-                if (value == false) {
-                  return const Login();
-                } else {
-                  return const MyHomePage();
-                }
-              })),
-        ));
+    return ValueListenableBuilder<ThemeMode>(
+        valueListenable: AppStore.themeMode,
+        builder: (_, value, __) {
+          return MaterialApp(
+              title: 'Flutter Demo',
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en', ''), // English, no country code
+                Locale('it', ''), // Spanish, no country code
+              ],
+              themeMode: value,
+              darkTheme: ThemeData(
+                  brightness: Brightness.dark,
+                  textTheme: const TextTheme(
+                    headline5: TextStyle(color: Color(0xfff5be49)),
+                    bodyText1: TextStyle(color: Color(0xfff5be49)),
+                    bodyText2: TextStyle(color: Colors.white),
+                    headline1: TextStyle(color: Colors.white),
+                  ),
+                  colorScheme: const ColorScheme.dark(
+                    primary: Color(0xff004a98),
+                    primaryContainer: Color(0xff011c50),
+                    secondary: Color(0xfff5be49),
+                    secondaryContainer: Color(0xfff6dfc8),
+                    // background: Color(0xff2b2b2b)
+                  ),
+                  shadowColor: const Color(0xfff5be49),
+                  selectedRowColor: const Color(0xfff5be49),
+                  cardColor: const Color(0xff004a98),
+                  scaffoldBackgroundColor: const Color(0xff011c50),
+                  dividerColor: const Color(0xfff5be49)),
+              theme: ThemeData(
+                  brightness: Brightness.light,
+                  textTheme: const TextTheme(
+                    headline5: TextStyle(color: Color(0xff004a98)),
+                    bodyText1: TextStyle(color: Color(0xff004a98)),
+                    bodyText2: TextStyle(color: Colors.black),
+                    headline1: TextStyle(color: Color(0xff004a98)),
+                  ),
+                  colorScheme: const ColorScheme.light(
+                      primary: Color(0xff004a98), primaryContainer: Color(0xff011c50), secondary: Color(0xfff5be49), secondaryContainer: Color(0xfff6dfc8)),
+                  cardColor: Colors.white,
+                  shadowColor: Colors.black38,
+                  selectedRowColor: const Color(0xff004a98),
+                  dividerColor: const Color(0xfff5be49),
+                  scaffoldBackgroundColor: Colors.grey[100]),
+              home: Scaffold(
+                body: ValueListenableBuilder(
+                    valueListenable: AuthStore.hasAuth,
+                    builder: ((context, value, _) {
+                      if (value == false) {
+                        return const Login();
+                      } else {
+                        return const MyHomePage();
+                      }
+                    })),
+              ));
+        });
   }
 }
 

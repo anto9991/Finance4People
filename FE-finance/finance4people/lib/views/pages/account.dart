@@ -1,4 +1,5 @@
 import 'package:finance4people/services/auth_service.dart';
+import 'package:finance4people/stores/app_store.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/utils/view_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -19,14 +20,29 @@ class _AccountState extends State<Account> {
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (AuthStore.isLogged) ...[AccountButton(text: "Logout", icon: const Icon(Icons.logout), onPressed: (() {
-              
-              AuthService.authService.signOut();
-            }))]
-            else...[ AccountButton(text: "Login", icon: const Icon(Icons.login), onPressed: (() {
-               AuthStore.hasAuth.value = false;
-            }))],
-            AccountButton(text: "Some Settings", icon: const Icon(Icons.settings_outlined), onPressed: (() => "ciao")),
+            if (AuthStore.isLogged) ...[
+              AccountButton(
+                  text: "Logout",
+                  icon: const Icon(Icons.logout),
+                  onPressed: (() {
+                    AuthService.authService.signOut();
+                  }))
+            ] else ...[
+              AccountButton(
+                  text: "Login",
+                  icon: const Icon(Icons.login),
+                  onPressed: (() {
+                    AuthStore.hasAuth.value = false;
+                  }))
+            ],
+            ValueListenableBuilder(
+                valueListenable: AppStore.themeMode,
+                builder: ((_, value, __) => AccountButton(
+                    text: "Switch theme",
+                    icon: AppStore.themeMode.value == ThemeMode.light ? const Icon(Icons.mode_night_outlined) : const Icon(Icons.wb_sunny_outlined),
+                    onPressed: (() {
+                      AppStore.themeMode.value = value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+                    })))),
             AccountButton(text: "Some other settings", onPressed: (() => "ciao")),
           ],
         )));
@@ -49,9 +65,18 @@ class AccountButton extends StatelessWidget {
         decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[300]!))),
         child: Row(
           children: [
-            SizedBox(width: MediaQuery.of(context).size.width * 0.1, height: MediaQuery.of(context).size.height * 0.05, child: Icon(icon?.icon, color: Theme.of(context).textTheme.headline5?.color)),
+            SizedBox(
+                width: MediaQuery.of(context).size.width * 0.1,
+                height: MediaQuery.of(context).size.height * 0.05,
+                child: Icon(icon?.icon, color: Theme.of(context).textTheme.headline5?.color)),
             Expanded(child: Text(text, style: const TextStyle(fontSize: 15.0))),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.1, height: MediaQuery.of(context).size.height * 0.05, child: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline5?.color,))
+            SizedBox(
+                width: MediaQuery.of(context).size.width * 0.1,
+                height: MediaQuery.of(context).size.height * 0.05,
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Theme.of(context).textTheme.headline5?.color,
+                ))
           ],
         ),
       ),
