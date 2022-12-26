@@ -4,6 +4,7 @@ import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
 import 'package:finance4people/views/utils/numbers.dart';
+import 'package:finance4people/views/utils/series_utils.dart';
 import 'package:finance4people/views/utils/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,8 +12,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class StockDetail extends StatefulWidget {
   final Stock stock;
   final bool? fromFavourites;
+  List<StockSeriesChart> chartSeries = [];
+  List<bool> selectedIndex = [false, false, false, false, false, true];
 
-  const StockDetail({Key? key, required this.stock, this.fromFavourites = false}) : super(key: key);
+  StockDetail({Key? key, required this.stock, this.fromFavourites = false}) : super(key: key);
 
   @override
   State<StockDetail> createState() => _StockDetailState();
@@ -21,6 +24,7 @@ class StockDetail extends StatefulWidget {
 class _StockDetailState extends State<StockDetail> {
   @override
   Widget build(BuildContext context) {
+    if(widget.chartSeries.isEmpty){widget.chartSeries = widget.stock.series;}
     return Scaffold(
       appBar: AppBar(
         // title: Text("${widget.stock.name} (${widget.stock.ticker})", overflow: TextOverflow.ellipsis),
@@ -38,33 +42,57 @@ class _StockDetailState extends State<StockDetail> {
               children: [
                 ChartDateButton(
                     text: "5D",
+                    isSelected: widget.selectedIndex[0],
                     onPressed: () {
-                      print("5D: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "5D");
+                        widget.selectedIndex = [true, false, false, false, false, false];
+                      });
                     }),
                 ChartDateButton(
                     text: "1M",
+                    isSelected: widget.selectedIndex[1],
                     onPressed: () {
-                      print("1M: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "1M");
+                        widget.selectedIndex = [false, true, false, false, false, false];
+                      });
                     }),
                 ChartDateButton(
                     text: "6M",
+                    isSelected: widget.selectedIndex[2],
                     onPressed: () {
-                      print("6M: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "6M");
+                        widget.selectedIndex = [false, false, true, false, false, false];
+                      });
                     }),
                 ChartDateButton(
                     text: "YTD",
+                    isSelected: widget.selectedIndex[3],
                     onPressed: () {
-                      print("YTD: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "YTD");
+                        widget.selectedIndex = [false, false, false, true, false, false];
+                      });
                     }),
                 ChartDateButton(
                     text: "1Y",
+                    isSelected: widget.selectedIndex[4],
                     onPressed: () {
-                      print("1Y: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "1Y");
+                        widget.selectedIndex = [false, false, false, false, true, false];
+                      });
                     }),
                 ChartDateButton(
                     text: "5Y",
+                    isSelected: widget.selectedIndex[5],
                     onPressed: () {
-                      print("5Y: I've got clicked");
+                      setState(() {
+                        widget.chartSeries = widget.stock.series;
+                        widget.selectedIndex = [false, false, false, false, false, true];
+                      });
                     }),
               ],
             ),
@@ -74,8 +102,8 @@ class _StockDetailState extends State<StockDetail> {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.95,
                 height: MediaQuery.of(context).size.width * 0.4,
-                child: widget.stock.series.isNotEmpty == true
-                    ? AreaChart(series: widget.stock.series, isReduced: false)
+                child: widget.chartSeries.isNotEmpty == true
+                    ? AreaChart(series: widget.chartSeries, isReduced: false)
                     : const Center(
                         child: Text(
                         //TODO add internationalization
@@ -283,18 +311,20 @@ class RowContainer extends StatelessWidget {
 class ChartDateButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final bool isSelected;
 
-  const ChartDateButton({Key? key, required this.text, required this.onPressed}) : super(key: key);
+  const ChartDateButton({Key? key, required this.text, required this.onPressed, this.isSelected = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.12,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5),
       ),
       child: TextButton(
+        style: ButtonStyle(overlayColor: MaterialStateProperty.all(Colors.transparent)),
         onPressed: onPressed,
         child: Text(text, style: TextStyle(color: Theme.of(context).textTheme.bodyText1!.color)),
       ),

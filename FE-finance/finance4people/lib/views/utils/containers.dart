@@ -6,6 +6,7 @@ import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/pages/stock/stock_detail.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
 import 'package:finance4people/views/utils/numbers.dart';
+import 'package:finance4people/views/utils/series_utils.dart';
 import 'package:finance4people/views/utils/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -110,7 +111,7 @@ class _StockContainerState extends State<StockContainer> {
                             width: MediaQuery.of(context).size.width * 0.35,
                             height: MediaQuery.of(context).size.width * 0.20,
                             child: widget.stock.series.isNotEmpty == true
-                                ? AreaChart(series: widget.stock.series, isReduced: true)
+                                ? AreaChart(series: SeriesUtils.getChartSeries(widget.stock.series, "6M"), isReduced: true)
                                 : const Center(
                                     child: Text(
                                     //TODO add internationalization

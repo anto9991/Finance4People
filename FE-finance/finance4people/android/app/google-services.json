@@ -29,6 +29,13 @@
             {
               "client_id": "943777440657-86h8jh2sb19rbnebqdbjsb7uml87dejh.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "943777440657-vkvb1f96v75td81bg4ilu083kqodhrpo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gabor.finance4people"
+              }
             }
           ]
         }
