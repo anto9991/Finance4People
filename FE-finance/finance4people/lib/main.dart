@@ -6,12 +6,10 @@ import 'package:finance4people/views/pages/feed.dart';
 import 'package:finance4people/views/pages/login.dart';
 import 'package:finance4people/views/pages/stock/home.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
-  await DotEnv().load();
   runApp(const MyApp());
 }
 
