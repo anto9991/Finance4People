@@ -160,8 +160,10 @@ async function YahooMain() {
                     })
                     console.log("Error: ", recap.errors[-1])
                 })
-            await utils.delay(5000)
+            // await utils.delay(5000)
             let financeStats = financeStatsApi.quoteResponse.result[0];
+
+            fs.writeFileSync("./financeStats.json", JSON.stringify(financeStats))
 
             if (!financeStats) {
                 recap.errors.push({
@@ -225,10 +227,11 @@ async function YahooMain() {
                     console.log("Error: ", recap.errors[-1])
                     return "Error"
                 })
-            await utils.delay(5000)
 
             // No particular reason for index 0, just json structure
             let keyStats = keyStatsApi.quoteSummary.result[0].defaultKeyStatistics
+            fs.writeFileSync("./keystats.json", JSON.stringify(keyStats))
+            break
 
             // 3° Request: specific financials data as PPE, EBIT etc...
             options = {
@@ -255,7 +258,7 @@ async function YahooMain() {
             let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
 
             // console.log("\n\n----\nLogging financialsApi: ", financialsApi, "\n----\n\n")
-            fs.writeFileSync("./financialsApiRes", financialsApi)
+            // fs.writeFileSync("./financialsApiRes", financialsApi)
 
             // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
             let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities

@@ -76,6 +76,10 @@ flutter:
     - assets/images/reddit.png
     - assets/images/google.png
     - assets/images/apple.png
+    - assets/images/clouds.png
+    - assets/images/curl.png
+    - assets/images/infographics/greenblatt.jpg
+    - assets/images/infographics/beta.jpg
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

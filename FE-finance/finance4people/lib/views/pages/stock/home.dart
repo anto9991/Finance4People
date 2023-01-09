@@ -101,7 +101,10 @@ class _HomeState extends State<Home> {
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
-                                                        return BottomModal(child: Text(AppLocalizations.of(context)!.cat1Desc));
+                                                        return BottomModal(image: Image.asset(
+                                                            "assets/images/infographics/greenblatt.jpg",
+                                                            height: MediaQuery.of(context).size.height * 0.86,
+                                                          ));
                                                       });
                                                 },
                                                 icon: const Icon(Icons.help)),
@@ -131,7 +134,10 @@ class _HomeState extends State<Home> {
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
-                                                        return BottomModal(child: Text(AppLocalizations.of(context)!.cat1Desc));
+                                                        return BottomModal(image: Image.asset(
+                                                            "assets/images/infographics/beta.jpg",
+                                                            height: MediaQuery.of(context).size.height * 0.86,
+                                                          ));
                                                       });
                                                 },
                                                 icon: const Icon(Icons.help)),
