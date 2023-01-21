@@ -97,11 +97,14 @@ class _HomeState extends State<Home> {
                                                 color: Theme.of(context).colorScheme.secondary,
                                                 onPressed: () {
                                                   showModalBottomSheet<void>(
+                                                    backgroundColor: Theme.of(context).colorScheme.primary,
                                                       isScrollControlled: true,
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
-                                                        return BottomModal(image: Image.asset(
+                                                        return BottomModal(
+                                                          color: Theme.of(context).colorScheme.primary,
+                                                          image: Image.asset(
                                                             "assets/images/infographics/greenblatt.jpg",
                                                             height: MediaQuery.of(context).size.height * 0.86,
                                                           ));
@@ -130,11 +133,14 @@ class _HomeState extends State<Home> {
                                                 color: Theme.of(context).colorScheme.secondary,
                                                 onPressed: () {
                                                   showModalBottomSheet<void>(
+                                                      backgroundColor: Colors.white,
                                                       isScrollControlled: true,
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
-                                                        return BottomModal(image: Image.asset(
+                                                        return BottomModal(
+                                                          color: Colors.white,
+                                                          image: Image.asset(
                                                             "assets/images/infographics/beta.jpg",
                                                             height: MediaQuery.of(context).size.height * 0.86,
                                                           ));

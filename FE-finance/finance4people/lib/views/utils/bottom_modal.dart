@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 class BottomModal extends StatelessWidget {
   final Widget? child;
   final Image? image;
+  final Color? color;
 
   const BottomModal(
       {Key? key,
       this.child,
-      this.image})
+      this.image,
+      this.color
+      })
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: color,
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), topRight: Radius.circular(10))),
       height: MediaQuery.of(context).size.height *
