@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
                 Locale('en', ''), // English, no country code
                 Locale('it', ''), // Spanish, no country code
               ],
+              // themeMode: ThemeMode.dark,
               themeMode: value,
               darkTheme: ThemeData(
                   brightness: Brightness.dark,

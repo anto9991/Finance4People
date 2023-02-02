@@ -36,7 +36,6 @@ class Login extends StatelessWidget {
                     if (!mounted) return;
                     CustomSnackBar.show(context, message, color);
                   }
-                  
                 }),
             SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             LoginButton(
@@ -44,8 +43,21 @@ class Login extends StatelessWidget {
                 color: Colors.black,
                 textColor: Colors.white,
                 logoSize: 0.065,
-                onPressed: () {
-                  print("Apple");
+                onPressed: () async {
+                  var auth = await AuthService().signInWithApple();
+                  String message;
+                  Color color;
+                  if (auth == "Success") {
+                      message = "Login completed successfully";
+                      color = Colors.green;
+                    if (!mounted) return;
+                    CustomSnackBar.show(context, message, color);
+                  } else if (auth == "Error") {
+                      message = "Something went wrong, try again or skip login";
+                      color =  Colors.red;
+                    if (!mounted) return;
+                    CustomSnackBar.show(context, message, color);
+                  }
                 }),
             SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             TextButton(

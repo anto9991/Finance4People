@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/stock_store.dart';
@@ -16,10 +18,16 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool dataLoadingError = false;
+  String loadingMessage = "Loading...";
 
   @override
   void initState() {
     super.initState();
+    Timer(const Duration(seconds: 10), () {
+      setState(() {
+        loadingMessage = "It's taking longer than it should...";
+      });
+    });
     _asyncDataLoading();
   }
 
@@ -39,8 +47,12 @@ class _HomeState extends State<Home> {
                 valueListenable: StockStore.isLoading,
                 builder: ((context, value, _) {
                   if (value == true) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [const CircularProgressIndicator(), const SizedBox(height: 10), Text(loadingMessage)],
+                      ),
                     );
                   } else if (value == false) {
                     if (!dataLoadingError) {
@@ -96,18 +108,21 @@ class _HomeState extends State<Home> {
                                                 splashColor: Colors.transparent,
                                                 color: Theme.of(context).colorScheme.secondary,
                                                 onPressed: () {
+                                                  var image = StockStore.selectedCatType == "Greenblatt" ? StockStore.images["Greenblatt"] : StockStore.images["Sharpe"];
                                                   showModalBottomSheet<void>(
-                                                    backgroundColor: Theme.of(context).colorScheme.primary,
+                                                      backgroundColor: image!.color,
                                                       isScrollControlled: true,
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
                                                         return BottomModal(
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                          image: Image.asset(
-                                                            "assets/images/infographics/greenblatt.jpg",
-                                                            height: MediaQuery.of(context).size.height * 0.86,
-                                                          ));
+                                                            color: image.color,
+                                                            image: Image.asset(
+                                                              image.path,
+                                                              height: MediaQuery.of(context).size.height * image.infographicHeight
+                                                            ),
+                                                            modalHeight: MediaQuery.of(context).size.height * 0.88,
+                                                            );
                                                       });
                                                 },
                                                 icon: const Icon(Icons.help)),
@@ -132,18 +147,21 @@ class _HomeState extends State<Home> {
                                                 splashColor: Colors.transparent,
                                                 color: Theme.of(context).colorScheme.secondary,
                                                 onPressed: () {
+                                                  var image = StockStore.images["Beta"];
                                                   showModalBottomSheet<void>(
-                                                      backgroundColor: Colors.white,
+                                                      backgroundColor: image!.color,
                                                       isScrollControlled: true,
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                                       context: context,
                                                       builder: (BuildContext context) {
                                                         return BottomModal(
-                                                          color: Colors.white,
-                                                          image: Image.asset(
-                                                            "assets/images/infographics/beta.jpg",
-                                                            height: MediaQuery.of(context).size.height * 0.86,
-                                                          ));
+                                                            color: image.color,
+                                                            image: Image.asset(
+                                                              image.path,
+                                                              height: MediaQuery.of(context).size.height * image.infographicHeight,
+                                                            ),
+                                                            modalHeight: MediaQuery.of(context).size.height * image.modalHeight,
+                                                            );
                                                       });
                                                 },
                                                 icon: const Icon(Icons.help)),
@@ -184,7 +202,7 @@ class _HomeState extends State<Home> {
                       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     const Padding(
                         padding: EdgeInsets.only(bottom: 10),
-                        child: Text("Something went wrong while loading data\nPlease try again", style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
+                        child: Text("Something went wrong while loading data...\nPlease try again", style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
                     IconButtonText(
                       icon: const Icon(Icons.refresh),
                       text: "Refresh",

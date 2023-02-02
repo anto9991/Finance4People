@@ -6,7 +6,6 @@
 console.log("---------- Start load data exexution ----------\n");
 // https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
 // api_key=<YOURAPIKEY>
-
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
@@ -57,64 +56,61 @@ let recap = {
     ok: []
 }
 
+async function getTwitterSearchCount(ticker,) {
+    let url = "https://api.twitter.com/2/tweets/counts/recent"
+    let params = {
+        "query": "AAPL",
+        "granularity": "day"
+    }
+    let headers = {
+        "authorization": "Bearer " + env.TWITTER_BEARER_TOKEN
+    }
+    let config = {
+        headers: headers,
+        params: params
+    }
+    let res = await axios.get(url, config)
+        .then((res) => {
+            return res.data.meta.total_tweet_count
+        })
+        .catch((err) => {
+            console.log("Error: ", err)
+        })
+}
 
-async function FMPmain() {
-    for (let i = 0; i < 10; i++) {
-        let stock = stockList[i];
-        let stockId;
-        try {
-            // line up the DB
-            // Check existence
-            let getDBStock = await dbStocks.findOne({ ticker: stock.Symbol })
-
-            // If not create stock record
-            if (getDBStock == null) {
-                let insertNewStock = await dbStocks.insertOne(
-                    {
-                        ticker: stock.Symbol,
-                        name: stock.Description,
-                        sector: stock["GICS Sector"],
-                        created_at: today.getTime(),
-                        created_by: agent,
-                        series: [],
-
-                    }
-                )
-                if (!insertNewStock.acknowledged) throw new Error("Stock insert failed");
-                else stockId = insertNewStock.insertedId;
-            } else {
-                stockId = getDBStock._id;
-            }
-
-            // Add series
-            let options = {
-                params: {
-                    'apikey': apikey,
-                    'from': fOneYearAgo,
-                    'to': fToday,
-                }
-            }
-
-            let apiRes = await axios.get("https://financialmodelingprep.com/api/v3/historical-price-full/" + stock.Symbol, options)
-                .then((res) => { return res.data; })
-                .catch((err) => { console.log("Logging apiErr: \n", err); return "Error" })
-
-            for (var key in apiRes.historical) {
-                serie = apiRes.historical[key];
-                let insertSerie = await dbStocks.updateOne(
-                    { _id: stockId, "series.date": { $ne: serie.date } },
-                    { $push: { series: serie } },
-                )
-                // if query didn't update it means that data was already there
-                // if (!insertSerie.acknoledged && insertSerie.modifiedCount == 0) console.log(stock.Symbol + " for " + serie.date + " already present")
-            }
-
-        } catch (err) {
-            console.log("Logging err: \n", err)
-            // Continue but log
+async function getRedditSerachCount() {
+    let url = "https://www.reddit.com/search.json"
+    let config = {
+        params: {
+            "q": "tsla",
+            "t": "week",
+            "limit": 100
         }
     }
+    let res = await axios.get(url, config)
+        .then((res) => {
+            console.log(res.data.data)
+        })
+        .catch((err) => {
+            console.log("Error: ", err)
+        })
 }
+async function getRedditSerachCount2() {
+    let url = "http://api.pushshift.io/reddit/search/comment"
+    let config = {
+        params: {
+            "q": "tsla"
+        }
+    }
+    let res = await axios.get(url, config)
+        .then((res) => {
+            console.log(res.data.data)
+        })
+        .catch((err) => {
+            console.log("Error: ", err)
+        })
+}
+
 async function YahooMain() {
     // Create DB instance & get instance
     let dbInstance;
@@ -124,18 +120,20 @@ async function YahooMain() {
         console.log("Logging err: \n", err);
         // Break and notify
     }
-    let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
+    let dbStocks = dbInstance.db(env.parse("DB_NAME")).collection("Stocks")
     // Get csv's SP500 stocks
     // let csvSource = process.argv.filter(item => item.includes('source'))
     // csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
-    
+
     // console.log("Logging source: ", csvSource)
     // let stockList = await getCSVStockList(csvSource);
-    
+
     let stockList = await getCSVStockList("stockList.csv");
 
     for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
+        let twitterCount = getTwitterSearchCount(stock.Symbol);
+
         console.log("Starting " + stock.Symbol);
         try {
             // Yahoo finance uses minus instead of dot
@@ -231,9 +229,9 @@ async function YahooMain() {
             // No particular reason for index 0, just json structure
             let keyStats = keyStatsApi.quoteSummary.result[0].defaultKeyStatistics
             fs.writeFileSync("./keystats.json", JSON.stringify(keyStats))
-            break
 
             // 3° Request: specific financials data as PPE, EBIT etc...
+            // NOT WORKING ANYMORE
             options = {
                 params: {
                     "p": stock.Symbol
@@ -255,10 +253,12 @@ async function YahooMain() {
 
             // This request doesn't return a simple json object but a full web page (js included with json variable containing all data)
             let parsedData = JSON.parse(utils.subStringCustom(financialsApi, 'root.App.main', '(this));\n</script><script>', 16, -3));
-            let financials = parsedData.context.dispatcher.stores.QuoteSummaryStore
+            let financials = parsedData.context.dispatcher.stores
 
             // console.log("\n\n----\nLogging financialsApi: ", financialsApi, "\n----\n\n")
-            // fs.writeFileSync("./financialsApiRes", financialsApi)
+            fs.writeFileSync("./financialsApiRes", financialsApi)
+            fs.writeFileSync("./financials", financials)
+            break
 
             // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
             let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities
@@ -289,7 +289,7 @@ async function YahooMain() {
 
             // Check date to update DB only once a day
             let insertFinance = await dbStocks.updateOne(
-                { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } },{ "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
+                { _id: stockId, $or: [{ "keyStatistics.date": { $ne: fToday } }, { "keyStatistics.hash": { $ne: hash } }, { "keyStatistics.date": { $exists: false } }] },
                 {
                     $set: {
                         keyStatistics: {
@@ -330,8 +330,29 @@ async function YahooMain() {
     console.log("------------------------ End ------------------------")
 }
 
-try{
-    YahooMain();
-}catch(e){
+async function testEV() {
+    // let resapi = await axios.get("https://www.alphavantage.co/query?function=OVERVIEW&symbol=AAPL&apikey=05NAQX1COY586KJX")
+    //     .then((res) => {
+    //         return res.data;
+    //     })
+    //     .catch((err) => {
+    //         console.log("Error: ", err)
+    //     })
+        // fs.writeFileSync("./aplhaOverview", JSON.stringify(resapi))
+    let resover = JSON.parse(fs.readFileSync("./aplhaOverview.json", "utf-8"));
+    let res = JSON.parse(fs.readFileSync("./aplhavantagetest.json", "utf-8"));
+    let data1 = res.annualReports[0];
+    console.log(resover.MarketCapitalization)
+    let enterpriseValue = resover.MarketCapitalization + data1.shortTermDebt + data1.longTermDebt - data1.cashAndCashEquivalentsAtCarryingValue
+    let enterpriseValue2 = resover.EBITDA * resover.EVToEBITDA
+    console.log(enterpriseValue)
+    console.log(enterpriseValue2)
+}
+
+try {
+    // YahooMain();
+    // getRedditSerachCount2();
+    testEV();
+} catch (e) {
     console.log(e);
 }

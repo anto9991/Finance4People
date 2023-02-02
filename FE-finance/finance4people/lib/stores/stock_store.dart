@@ -1,4 +1,5 @@
 import 'package:finance4people/models/categories_container.dart';
+import 'package:finance4people/models/infographic.dart';
 import 'package:flutter/material.dart';
 
 class StockStore {
@@ -24,4 +25,17 @@ class StockStore {
   static List<dynamic> favouritesNoBeta = [];
   static List<dynamic> sharpeNoBeta = [];
   static dynamic data;
+  static Map<String, Infographic> images = {
+    "Greenblatt": GreenblattInfographic(),
+    "Beta": BetaInfographic(),
+    "Sharpe": SharpeInfographic(),
+    "Whl52": Whl52Infographic(),
+    "Analyst": AnalystInfographic(),
+    "DividendPerShare": DividendPerShareInfographic(),
+    "EPS": EPSInfographic(),
+    "EV": EVInfographic(),
+    "MarketCap": MarketCapInfographic(),
+    "PE": PEInfographic(),
+    "Volume": VolumeInfographic()
+  };
 }

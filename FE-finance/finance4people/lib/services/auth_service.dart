@@ -4,9 +4,12 @@ import 'dart:io';
 import 'package:finance4people/models/google_user.dart';
 import 'package:finance4people/models/user.dart';
 import 'package:finance4people/stores/auth_store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import './env.dart' as env;
+import "dart:math" as math;
 
 class AuthService {
   static final AuthService authService = AuthService._internal();
@@ -38,11 +41,36 @@ class AuthService {
               return "Error";
             }
           });
+        } else {
+          return "";
         }
-        else {return "";}
       });
     } catch (error) {
       print(error);
+      return "Error";
+    }
+  }
+
+  Future<String> signInWithApple() async {
+    try {
+      var rnd = math.Random();
+      var values = List<int>.generate(32, (i) => rnd.nextInt(256));
+      var nonce = base64Encode(values).replaceAll(RegExp('[=/+]'), '');
+
+      var scopes = [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ];
+
+      final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: scopes,
+          webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: kIsWeb ? Uri.parse("some url") : Uri.parse("Some other url")),
+          nonce: nonce);
+
+      print("AppleSignIn credentials: $credential");
+      return "Success";
+    } catch (err) {
+      print("Printing error: $err");
       return "Error";
     }
   }
@@ -57,10 +85,10 @@ class AuthService {
     }
   }
 
-  Future<String> signOut() async{
+  Future<String> signOut() async {
     try {
       String gSignOut = await signOutGoogle();
-      if(gSignOut == "Error"){
+      if (gSignOut == "Error") {
         throw Error();
       }
       AuthStore.isLogged = false;
