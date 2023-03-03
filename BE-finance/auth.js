@@ -14,7 +14,7 @@ module.exports = fastifyPlugin(async (fastify, opts) => {
       var code = headerSplit[2];
       var token = headerSplit[1];
       var ticket;
-      console.log("\n\n\nHeader: ", headerSplit)
+      
       if (code == "G") {
          ticket = await client.verifyIdToken({
           idToken: token,
@@ -22,6 +22,7 @@ module.exports = fastifyPlugin(async (fastify, opts) => {
         })
         const payload = ticket.getPayload();
         request.data = payload;
+
       } else if (code == "A") {
         var nonce = headerSplit[3];
         ticket = await verifyAppleToken({
@@ -29,9 +30,7 @@ module.exports = fastifyPlugin(async (fastify, opts) => {
           clientId: process.env.APPLE_CLIENTID,
           nonce: nonce
         });
-        request.data = {sub: ticket.email}
-        // var decoded = jwt.decode(token);
-        console.log("Apple login ticket result: ", ticket)
+        request.data = ticket;
       } else { fastify.httpErrors.unauthorized("Unauthorized"); }
 
       if (!ticket) {
