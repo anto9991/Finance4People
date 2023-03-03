@@ -121,6 +121,8 @@ class AuthService {
         } else {
           throw Exception("User should be logged");
         }
+        print("Getting user $user $code");
+        print("Getting code $code");
         var response = await http.get(
           Uri.http(env.host, '/user'),
           headers: <String, String>{
@@ -128,9 +130,12 @@ class AuthService {
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
           },
         );
+        print("Printing response: ${response.statusCode}");
         if (response.statusCode == 200) {
           var responseJson = jsonDecode(response.body);
           AuthStore.user = User.fromJson(responseJson["user"]);
+          print("Printing responseJson $responseJson");
+          print("Printing auth user ${AuthStore.user}");
         }
       }
     } catch (error) {

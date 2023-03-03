@@ -71,6 +71,7 @@ class StockService {
 
         setStore(categorization, beta, result);
       } else {
+        print(response.statusCode);
         throw Exception('fetchFromBEStocks request has failed');
       }
       stopwatch.stop();
