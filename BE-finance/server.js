@@ -148,7 +148,7 @@ const start = async () => {
   try {
     // TODO: Reset comment 
     // await fastify.listen({ port: 3000, host: '127.0.0.2' })
-    await fastify.listen({ port: 300 })
+    await fastify.listen({ port: 3000 })
   } catch (err) {
     // fastify.log.error(err)
     console.log(err)
