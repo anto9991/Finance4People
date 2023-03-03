@@ -2,6 +2,7 @@ const fastifyPlugin = require("fastify-plugin");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.CLIENT_ID)
+const verifyAppleToken = require('verify-apple-id-token').default;
 
 // Plugin for authentication
 // module.exports = fastifyPlugin()
@@ -9,17 +10,33 @@ module.exports = fastifyPlugin(async (fastify, opts) => {
 
   async function checkAuth(request, reply, done) {
     try {
-      var token = request.headers.authorization.split(" ")[1];
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        requiredAudience: process.env.CLIENT_ID
-      })
+      var headerSplit = request.headers.authorization.split(" ");
+      var code = headerSplit[2];
+      var token = headerSplit[1];
+      var ticket;
+      console.log("\n\n\nHeader: ", headerSplit)
+      if (code == "G") {
+         ticket = await client.verifyIdToken({
+          idToken: token,
+          requiredAudience: process.env.CLIENT_ID
+        })
+        const payload = ticket.getPayload();
+        request.data = payload;
+      } else if (code == "A") {
+        var nonce = headerSplit[3];
+        ticket = await verifyAppleToken({
+          idToken: token,
+          clientId: process.env.APPLE_CLIENTID,
+          nonce: nonce
+        });
+        request.data = {sub: ticket.email}
+        // var decoded = jwt.decode(token);
+        console.log("Apple login ticket result: ", ticket)
+      } else { fastify.httpErrors.unauthorized("Unauthorized"); }
 
-      if (!token) {
+      if (!ticket) {
         throw fastify.httpErrors.unauthorized("Unauthorized");
       }
-      const payload = ticket.getPayload();
-      request.data = payload;
     } catch (err) {
       console.log(err)
       throw fastify.httpErrors.unauthorized("Unauthorized");

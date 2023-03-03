@@ -134,10 +134,22 @@ class StockService {
   static Future<bool> setFavourite(String stockId, bool value) async {
     try {
       if (AuthStore.isLogged) {
+        var user;
+        var code;
+        if (AuthStore.appleUser != null) {
+          user = AuthStore.appleUser!.authorizationCode;
+          code = "A ${AuthStore.nonce}";
+        } else if (AuthStore.gUser.idToken != "") {
+          user = AuthStore.gUser.idToken;
+          code = "G";
+        } else {
+          throw Exception("User should be logged");
+        }
+
         var request = await http.post(
           Uri.https(env.host, '/stocks/$stockId/favourite'),
           headers: <String, String>{
-            HttpHeaders.authorizationHeader: 'Bearer ${AuthStore.gUser.idToken}',
+            HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, dynamic>{

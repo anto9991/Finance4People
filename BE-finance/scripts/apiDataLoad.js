@@ -56,10 +56,10 @@ let recap = {
     ok: []
 }
 
-async function getTwitterSearchCount(ticker,) {
+async function getTwitterSearchCount(ticker) {
     let url = "https://api.twitter.com/2/tweets/counts/recent"
     let params = {
-        "query": "AAPL",
+        "query": ticker,
         "granularity": "day"
     }
     let headers = {
@@ -76,6 +76,7 @@ async function getTwitterSearchCount(ticker,) {
         .catch((err) => {
             console.log("Error: ", err)
         })
+    return res;
 }
 
 async function getRedditSerachCount() {

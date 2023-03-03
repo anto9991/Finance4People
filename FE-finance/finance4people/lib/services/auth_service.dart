@@ -66,8 +66,11 @@ class AuthService {
           scopes: scopes,
           webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: kIsWeb ? Uri.parse("some url") : Uri.parse("Some other url")),
           nonce: nonce);
-
-      print("AppleSignIn credentials: $credential");
+      print("Credentials $credential");
+      AuthStore.nonce = nonce;
+      AuthStore.appleUser = credential;
+      AuthStore.hasAuth.value = true;
+      AuthStore.isLogged = true;
       return "Success";
     } catch (err) {
       print("Printing error: $err");
@@ -95,6 +98,7 @@ class AuthService {
       AuthStore.hasAuth.value = false;
       AuthStore.gUser = GoogleUser();
       AuthStore.user = User();
+      AuthStore.appleUser = null;
       AuthStore.googleId = "";
       return "Success";
     } catch (error) {
@@ -106,10 +110,21 @@ class AuthService {
   Future<void> getBEUser() async {
     try {
       if (AuthStore.isLogged) {
+        var user;
+        var code;
+        if (AuthStore.appleUser != null) {
+          user = AuthStore.appleUser!.identityToken;
+          code = "A ${AuthStore.nonce}";
+        } else if (AuthStore.gUser.idToken != "") {
+          user = AuthStore.gUser.idToken;
+          code = "G";
+        } else {
+          throw Exception("User should be logged");
+        }
         var response = await http.get(
           Uri.http(env.host, '/user'),
           headers: <String, String>{
-            HttpHeaders.authorizationHeader: 'Bearer ${AuthStore.gUser.idToken}',
+            HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
           },
         );

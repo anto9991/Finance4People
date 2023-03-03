@@ -43,7 +43,7 @@ class _AccountState extends State<Account> {
                     onPressed: (() {
                       AppStore.themeMode.value = value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
                     })))),
-            AccountButton(text: "Some other settings", onPressed: (() => "ciao")),
+            // AccountButton(text: "Some other settings", onPressed: (() => "ciao")),
           ],
         )));
   }

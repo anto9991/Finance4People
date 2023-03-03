@@ -79,9 +79,9 @@ flutter:
     - assets/images/apple.png
     - assets/images/clouds.png
     - assets/images/curl.png
-    - assets/images/infographics/greenblatt.jpeg
-    - assets/images/infographics/beta.jpeg
-    - assets/images/infographics/sharpe.jpeg
+    - assets/images/infographics/greenblatt.png
+    - assets/images/infographics/beta.png
+    - assets/images/infographics/sharpe.png
     - assets/images/infographics/basic_indicators/52whl.png
     - assets/images/infographics/basic_indicators/analyst.png
     - assets/images/infographics/basic_indicators/dps.png

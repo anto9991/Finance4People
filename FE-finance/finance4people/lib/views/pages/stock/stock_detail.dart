@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
+import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/numbers.dart';
 import 'package:finance4people/views/utils/series_utils.dart';
 import 'package:finance4people/views/utils/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+// ignore: must_be_immutable
 class StockDetail extends StatefulWidget {
   final Stock stock;
   final bool? fromFavourites;
@@ -24,7 +26,9 @@ class StockDetail extends StatefulWidget {
 class _StockDetailState extends State<StockDetail> {
   @override
   Widget build(BuildContext context) {
-    if(widget.chartSeries.isEmpty){widget.chartSeries = widget.stock.series;}
+    if (widget.chartSeries.isEmpty) {
+      widget.chartSeries = widget.stock.series;
+    }
     return Scaffold(
       appBar: AppBar(
         // title: Text("${widget.stock.name} (${widget.stock.ticker})", overflow: TextOverflow.ellipsis),
@@ -127,17 +131,18 @@ class _StockDetailState extends State<StockDetail> {
             spacing: 10,
             children: [
               StatsChip(
+                width: 0.95,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: getKeyStats(0),
                 ),
               ),
-              StatsChip(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: getKeyStats(1),
-                ),
-              )
+              // StatsChip(
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: getKeyStats(1),
+              //   ),
+              // )
             ],
           ),
           const Divider(
@@ -152,10 +157,10 @@ class _StockDetailState extends State<StockDetail> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.005),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const SocialChip(name: "Twitter", counter: 100000, color: Colors.blue),
-              SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-              const SocialChip(name: "Reddit", counter: 35000, color: Colors.red),
+            children: const [
+              SocialChip(name: "Twitter", counter: 100000, color: Colors.blue),
+              // SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+              // const SocialChip(name: "Reddit", counter: 35000, color: Colors.red),
             ],
           )
         ]),
@@ -168,30 +173,27 @@ class _StockDetailState extends State<StockDetail> {
 
     List<Widget> keyStats = [];
 
-    if (chipNum == 0) {
+    
       if (StockStore.selectedCatType == "Greenblatt") {
         keyStats.add(
-          SingleStatChip(bold: "Beta", plain: NumberUtils.formatNumber(decodedKeystats["data"]["beta"]["raw"])),
+          SingleStatChip(imageName: "Beta",bold: "Beta", plain: NumberUtils.formatNumber(decodedKeystats["data"]["beta"]["raw"])),
         );
         keyStats.add(
-          SingleStatChip(bold: "Earning Yield", plain: NumberUtils.formatNumber(decodedKeystats["data"]["earningYield"])),
+          SingleStatChip(imageName: "Beta",bold: "Earning Yield", plain: NumberUtils.formatNumber(decodedKeystats["data"]["earningYield"])),
         );
         keyStats.add(
-          SingleStatChip(bold: "Return on capital", plain: NumberUtils.formatNumber(decodedKeystats["data"]["returnOnCapital"])),
+          SingleStatChip(imageName: "Beta",bold: "Return on capital", plain: NumberUtils.formatNumber(decodedKeystats["data"]["returnOnCapital"])),
         );
       }
-      keyStats.add(SingleStatChip(bold: "Enterprise Value", plain: "\$${decodedKeystats["data"]["enterpriseValue"]["fmt"] ?? "N.D."}"));
-      keyStats.add(SingleStatChip(bold: "Forward PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardPE"])));
-      keyStats.add(SingleStatChip(bold: "Trailing PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"])));
-    }
-    if (chipNum == 1) {
-      keyStats.add(SingleStatChip(bold: "Trailing EPS", plain: decodedKeystats["data"]["trailingEPS"]?["fmt"] ?? "N.D."));
-      keyStats.add(SingleStatChip(bold: "Forward EPS", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardEPS"])));
-      keyStats.add(SingleStatChip(bold: "Analyst rating", plain: decodedKeystats["data"]["averageAnalystRating"] ?? "N.D."));
-      keyStats.add(SingleStatChip(bold: "52 Weeks Low", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekLow"])}"));
-      keyStats.add(SingleStatChip(bold: "52 Weeks High", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekHigh"])}"));
-      keyStats.add(SingleStatChip(bold: "", plain: ""));
-    }
+      keyStats.add(SingleStatChip(imageName: "EV",bold: "Enterprise Value", plain: "\$${decodedKeystats["data"]["enterpriseValue"]["fmt"] ?? "N.D."}"));
+      keyStats.add(SingleStatChip(imageName: "PE",bold: "Forward PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardPE"])));
+      keyStats.add(SingleStatChip(imageName: "PE",bold: "Trailing PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"])));
+    
+      keyStats.add(SingleStatChip(imageName: "EPS",bold: "Trailing EPS", plain: decodedKeystats["data"]["trailingEPS"]?["fmt"] ?? "N.D."));
+      keyStats.add(SingleStatChip(imageName: "EPS",bold: "Forward EPS", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardEPS"])));
+      keyStats.add(SingleStatChip(imageName: "Analyst",bold: "Analyst rating", plain: decodedKeystats["data"]["averageAnalystRating"] ?? "N.D."));
+      keyStats.add(SingleStatChip(imageName: "Whl52",bold: "52 Weeks Low", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekLow"])}"));
+      keyStats.add(SingleStatChip(imageName: "Whl52",bold: "52 Weeks High", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekHigh"])}"));
 
     // keyStats.add(
     //   BoldAndPlain(bold: "Trailing P/E", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"]), fontSize: fontSize),
@@ -206,27 +208,58 @@ class _StockDetailState extends State<StockDetail> {
 class SingleStatChip extends StatelessWidget {
   final String bold;
   final String plain;
+  final String imageName;
 
-  const SingleStatChip({Key? key, required this.bold, required this.plain}) : super(key: key);
+  const SingleStatChip({Key? key, required this.bold, required this.plain, required this.imageName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     double fontSize = 14.5;
-    return SingleChildScrollView(scrollDirection: Axis.horizontal, child: BoldAndPlain(bold: bold, plain: plain, fontSize: fontSize));
+    return BoldAndPlainSpaceBetween(
+      bold: bold,
+      plain: plain,
+      fontSize: fontSize,
+      widget: IconButton(
+          padding: const EdgeInsets.only(bottom: 2, left: 2),
+          constraints: const BoxConstraints(minHeight: 0, minWidth: 0),
+          iconSize: 18,
+          splashColor: Colors.transparent,
+          color: Theme.of(context).colorScheme.secondary,
+          onPressed: () {
+            var image = StockStore.images[imageName];
+            showModalBottomSheet<void>(
+                backgroundColor: image!.color,
+                isScrollControlled: true,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                context: context,
+                builder: (BuildContext context) {
+                  return BottomModal(
+                    color: image.color,
+                    image: Image.asset(
+                      image.path,
+                      height: MediaQuery.of(context).size.height * image.infographicHeight,
+                    ),
+                    modalHeight: MediaQuery.of(context).size.height * image.modalHeight,
+                  );
+                });
+          },
+          icon: const Icon(Icons.help)),
+    );
   }
 }
 
 @immutable
 class StatsChip extends StatelessWidget {
   final Widget child;
+  final double? width;
 
-  const StatsChip({Key? key, required this.child}) : super(key: key);
+  const StatsChip({Key? key, required this.child, this.width}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5),
-      width: MediaQuery.of(context).size.width * 0.465,
+      width: MediaQuery.of(context).size.width * (width ?? 0.465),
       // height: MediaQuery.of(context).size.height * 0.2,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,

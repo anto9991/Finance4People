@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
                                                               image.path,
                                                               height: MediaQuery.of(context).size.height * image.infographicHeight
                                                             ),
-                                                            modalHeight: MediaQuery.of(context).size.height * 0.88,
+                                                            modalHeight: MediaQuery.of(context).size.height * image.modalHeight,
                                                             );
                                                       });
                                                 },

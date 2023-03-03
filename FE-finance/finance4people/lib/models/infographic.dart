@@ -15,13 +15,13 @@ abstract class Infographic {
 
 class GreenblattInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/greenblatt.jpeg';
+  String path = 'assets/images/infographics/greenblatt.png';
 
   @override
-  double infographicHeight = longImgHeight;
+  double infographicHeight = 0.7;
 
   @override
-  double modalHeight = longModalHeight;
+  double modalHeight = 0.75;
 
   @override
   Color color = const Color(0xff004a98);
@@ -29,13 +29,13 @@ class GreenblattInfographic implements Infographic {
 
 class SharpeInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/sharpe.jpeg';
+  String path = 'assets/images/infographics/sharpe.png';
 
   @override
-  double infographicHeight = longImgHeight;
+  double infographicHeight = 0.6;
 
   @override
-  double modalHeight = longModalHeight;
+  double modalHeight = 0.65;
 
   @override
   Color color = const Color(0xff004a98);
@@ -43,13 +43,13 @@ class SharpeInfographic implements Infographic {
 
 class BetaInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/beta.jpeg';
+  String path = 'assets/images/infographics/beta.png';
 
   @override
-  double infographicHeight = longImgHeight;
+  double infographicHeight = 0.75;
 
   @override
-  double modalHeight = longModalHeight;
+  double modalHeight = 0.8;
 
   @override
   Color color = Colors.white;
@@ -66,7 +66,7 @@ class Whl52Infographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class AnalystInfographic implements Infographic {
@@ -80,7 +80,7 @@ class AnalystInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class DividendPerShareInfographic implements Infographic {
@@ -94,7 +94,7 @@ class DividendPerShareInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class EPSInfographic implements Infographic {
@@ -108,7 +108,7 @@ class EPSInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class EVInfographic implements Infographic {
@@ -122,7 +122,7 @@ class EVInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class MarketCapInfographic implements Infographic {
@@ -136,7 +136,7 @@ class MarketCapInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class PEInfographic implements Infographic {
@@ -150,7 +150,7 @@ class PEInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
 
 class VolumeInfographic implements Infographic {
@@ -164,5 +164,5 @@ class VolumeInfographic implements Infographic {
   double modalHeight = shortModalHeight;
 
   @override
-  Color color = Colors.white;
+  Color color = const Color(0xff004a98);
 }
