@@ -1,5 +1,5 @@
-import 'package:finance4people/models/google_user.dart';
 import 'package:finance4people/models/user.dart';
+import 'package:finance4people/models/google_user.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 

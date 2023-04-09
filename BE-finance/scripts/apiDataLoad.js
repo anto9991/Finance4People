@@ -14,7 +14,7 @@ const axios = require("axios");
 const mongodb = require("mongodb").MongoClient;
 const md5 = require('md5');
 
-const apikey = env.FMP_API_KEY;
+const apikey = env.AV_API_KEY;
 const today = new Date;
 const agent = "Load script";
 const index = "SP500"
@@ -33,7 +33,7 @@ function getCSVStockList(source = "stockList.csv") {
 //
 // ─────────────────────────────────────────────────────────────── Connectin to Mongo ───────────────────────────────────────────────────────────────
 //
-function dbConnection() {
+async function dbConnection() {
     let url = env.DB_URL;
 
     // Mongo options
@@ -111,17 +111,8 @@ async function getRedditSerachCount2() {
             console.log("Error: ", err)
         })
 }
-
 async function YahooMain() {
-    // Create DB instance & get instance
-    let dbInstance;
-    try {
-        dbInstance = await dbConnection()
-    } catch (err) {
-        console.log("Logging err: \n", err);
-        // Break and notify
-    }
-    let dbStocks = dbInstance.db(env.parse("DB_NAME")).collection("Stocks")
+    let dbStocks = await dbConnection();
     // Get csv's SP500 stocks
     // let csvSource = process.argv.filter(item => item.includes('source'))
     // csvSource[0] ? csvSource = csvSource[0].substring(csvSource[0].indexOf("=") + 1) : csvSource = undefined;
@@ -331,29 +322,207 @@ async function YahooMain() {
     console.log("------------------------ End ------------------------")
 }
 
-async function testEV() {
-    // let resapi = await axios.get("https://www.alphavantage.co/query?function=OVERVIEW&symbol=AAPL&apikey=05NAQX1COY586KJX")
-    //     .then((res) => {
-    //         return res.data;
-    //     })
-    //     .catch((err) => {
-    //         console.log("Error: ", err)
-    //     })
-        // fs.writeFileSync("./aplhaOverview", JSON.stringify(resapi))
-    let resover = JSON.parse(fs.readFileSync("./aplhaOverview.json", "utf-8"));
-    let res = JSON.parse(fs.readFileSync("./aplhavantagetest.json", "utf-8"));
-    let data1 = res.annualReports[0];
-    console.log(resover.MarketCapitalization)
-    let enterpriseValue = resover.MarketCapitalization + data1.shortTermDebt + data1.longTermDebt - data1.cashAndCashEquivalentsAtCarryingValue
-    let enterpriseValue2 = resover.EBITDA * resover.EVToEBITDA
-    console.log(enterpriseValue)
-    console.log(enterpriseValue2)
+async function AlphaVantageDataLoad() {
+    // Create DB instance & get instance
+    let dbInstance;
+    try {
+        dbInstance = await dbConnection()
+    } catch (err) {
+        console.log("Logging err: \n", err);
+        // Break and notify
+    }
+    let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
+
+    let stockList = await getCSVStockList("stockList.csv");
+
+    let errors = [];
+
+    for (let index = 0; index <= 1; index++) {
+        try {
+            let stock = stockList[index];
+
+            // let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
+            // fs.writeFileSync("./dailyAdjusted.json", JSON.stringify(dailyAdjusted))
+            // let companyOverview = await AVCompanyOverview(stock.Symbol);
+            // fs.writeFileSync("./companyOverview.json", JSON.stringify(companyOverview))
+            // let balanceSheet = await AVBalanceSheet(stock.Symbol);
+            // fs.writeFileSync("./balanceSheet.json", JSON.stringify(balanceSheet))
+            // let incomeStatement = await AVIncomeStatement(stock.Symbol);
+            // fs.writeFileSync("./incomeStatement.json", JSON.stringify(incomeStatement))
+            // let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
+            // fs.writeFileSync("./weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
+
+            let weeklyAdjusted = JSON.parse(fs.readFileSync("./weeklyAdjusted.json", "utf-8"));
+            let dailyAdjusted = JSON.parse(fs.readFileSync("./dailyAdjusted.json", "utf-8"));
+            let companyOverview = JSON.parse(fs.readFileSync("./companyOverview.json", "utf-8"));
+            let balanceSheet = JSON.parse(fs.readFileSync("./balanceSheet.json", "utf-8"));
+            let incomeStatement = JSON.parse(fs.readFileSync("./incomeStatement.json", "utf-8"));
+
+            // Parse series
+            let dailySeriesValues = Object.values(dailyAdjusted["Time Series (Daily)"])
+            let dailySeriesKeys = Object.keys(dailyAdjusted["Time Series (Daily)"])
+            let weeklySeriesValues = Object.values(weeklyAdjusted["Weekly Adjusted Time Series"])
+            let weeklySeriesKeys = Object.keys(weeklyAdjusted["Weekly Adjusted Time Series"])
+
+            let dailySeries = [];
+            let weeklySeries = [];
+
+            for (let i = 0; i < weeklySeriesValues.length; i++) {
+                if (i < dailySeriesValues.length) {
+                    let daily = {
+                        open: dailySeriesValues[i]["1. open"],
+                        close: dailySeriesValues[i]["4. close"],
+                        timestamp: Date.parse(dailySeriesKeys[0])
+                    }
+                    dailySeries.push(daily)
+                }
+                let weekly = {
+                    open: weeklySeriesValues[i]["1. open"],
+                    close: weeklySeriesValues[i]["4. close"],
+                    timestamp: Date.parse(weeklySeriesKeys[0])
+                }
+                weeklySeries.push(weekly)
+            }
+
+            let dbObject = {
+                symbol: companyOverview.Symbol,
+                name: companyOverview.Name,
+                currency: companyOverview.Currency,
+                country: companyOverview.Country,
+                sector: companyOverview.Sector,
+                industry: companyOverview.Industry,
+                volume: dailySeriesValues[0]["6. volume"],
+                marketCap: companyOverview.MarketCapitalization,
+                trailingPE: companyOverview.TrailingPE,
+                forwardPE: companyOverview.ForwardPE,
+                trailingEPS: companyOverview.EPS,
+                analystTargetPrice: companyOverview.AnalystTargetPrice,
+                beta: companyOverview.Beta,
+                enterpriseValue: companyOverview.EVToEBITDA * companyOverview.EBITDA,
+                returnOnCapital: incomeStatement.annualReports[0].ebit / (balanceSheet.annualReports[0].propertyPlantEquipment + (balanceSheet.annualReports[0].totalCurrentAssets - balanceSheet.annualReports[0].totalCurrentLiabilities)),
+                ebit: incomeStatement.annualReports[0].ebit,
+                propertyPlantEquipment: balanceSheet.annualReports[0].propertyPlantEquipment,
+                totalCurrentAssets: balanceSheet.annualReports[0].totalCurrentAssets,
+                totalCurrentLiabilities: balanceSheet.annualReports[0].totalCurrentLiabilities,
+                forwardPE: companyOverview.ForwardPE,
+                trailingPE: companyOverview.TrailingPE,
+                wh52: companyOverview["52WeekHigh"],
+                wl52: companyOverview["52WeekLow"],
+                twitterSearchCount: await getTwitterSearchCount(stock.Symbol),
+                series: {
+                    y1_d: dailySeries,
+                    y20_w: weeklySeries
+                }
+            };
+            let query = { symbol: stock.Symbol };
+            let update = { $set: dbObject };
+            let options = { upsert: true };
+
+            // Check date to update DB only once a day
+            let insertFinance = await dbStocks.updateOne(query, update, options)
+
+            if (!insertFinance.acknowledged || !(insertFinance.modifiedCount > 0)) {
+                throw "Something went wrong for " + stock.Symbol + "(Ack: " + insertFinance.acknowledged + ",ModifiedCount: " + insertFinance.modifiedCount + ")";
+            }
+
+            break;
+        } catch (err) {
+            errors.push(err);
+        }
+    }
+    console.log(errors)
+    dbInstance.close();
+    process.exit()
+}
+
+// async function testEV() {
+//     // let resapi = await axios.get("https://www.alphavantage.co/query?function=OVERVIEW&symbol=AAPL&apikey=05NAQX1COY586KJX")
+//     //     .then((res) => {
+//     //         return res.data;
+//     //     })
+//     //     .catch((err) => {
+//     //         console.log("Error: ", err)
+//     //     })
+//         // fs.writeFileSync("./aplhaOverview", JSON.stringify(resapi))
+//     let resover = JSON.parse(fs.readFileSync("./aplhaOverview.json", "utf-8"));
+//     let res = JSON.parse(fs.readFileSync("./aplhavantagetest.json", "utf-8"));
+//     let data1 = res.annualReports[0];
+//     console.log(resover.MarketCapitalization)
+//     let enterpriseValue = resover.MarketCapitalization + data1.shortTermDebt + data1.longTermDebt - data1.cashAndCashEquivalentsAtCarryingValue
+//     let enterpriseValue2 = resover.EBITDA * resover.EVToEBITDA
+//     console.log(enterpriseValue)
+//     console.log(enterpriseValue2)
+// }
+
+async function AVCompanyOverview(symbol) {
+    let url = "https://www.alphavantage.co/query?function=OVERVIEW&symbol=" + symbol + "&apikey=" + apikey
+    let request = await axios.get(url)
+        .then((res) => {
+            return res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    if (request) return request
+    else throw new Error("Company overview api call failed");
+}
+async function AVBalanceSheet(symbol) {
+    let url = "https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=" + symbol + "&apikey=" + apikey
+    let request = await axios.get(url)
+        .then((res) => {
+            return res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    if (request) return request
+    else throw new Error("Balance sheet api call failed");
+}
+async function AVIncomeStatement(symbol) {
+    let url = "https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=" + symbol + "&apikey=" + apikey
+    let request = await axios.get(url)
+        .then((res) => {
+            return res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    if (request) return request
+    else throw new Error("Income statement api call failed");
+}
+async function AVDailiAdjusted(symbol) {
+    let url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&apikey=" + apikey
+    let request = await axios.get(url)
+        .then((res) => {
+            return res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    if (request) return request
+    else throw new Error("Daily adjusted api call failed");
+}
+async function AVWeeklyAdjusted(symbol) {
+    let url = "https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=" + symbol + "&apikey=" + apikey
+    let request = await axios.get(url)
+        .then((res) => {
+            return res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    if (request) return request
+    else throw new Error("Daily adjusted api call failed");
 }
 
 try {
-    // YahooMain();
-    // getRedditSerachCount2();
-    testEV();
+    AlphaVantageDataLoad();
 } catch (e) {
     console.log(e);
 }
+
