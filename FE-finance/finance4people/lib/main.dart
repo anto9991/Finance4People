@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         builder: (_, value, __) {
           return MaterialApp(
               title: 'Flutter Demo',
+              debugShowCheckedModeBanner: false,
               localizationsDelegates: const [
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
@@ -37,40 +38,45 @@ class MyApp extends StatelessWidget {
               ],
               // themeMode: ThemeMode.dark,
               themeMode: value,
+              // Palette colori Alessandro
+              // Green primary: #49A642
+              // Green secondary: #042623
+              // White: #D3E5D5
+              // gold: #F2CB55
               darkTheme: ThemeData(
                   brightness: Brightness.dark,
                   textTheme: const TextTheme(
-                    headline5: TextStyle(color: Color(0xfff5be49)),
-                    bodyText1: TextStyle(color: Color(0xfff5be49)),
+                    headline5: TextStyle(color: Color(0xffF2CB55)),
+                    bodyText1: TextStyle(color: Color(0xffF2CB55)),
                     bodyText2: TextStyle(color: Colors.white),
                     headline1: TextStyle(color: Colors.white),
                   ),
                   colorScheme: const ColorScheme.dark(
-                    primary: Color(0xff004a98),
-                    primaryContainer: Color(0xff011c50),
-                    secondary: Color(0xfff5be49),
+                    primary: Color(0xff49A642),
+                    primaryContainer: Color(0xff042623),
+                    secondary: Color(0xffF2CB55),
                     secondaryContainer: Color(0xfff6dfc8),
                     // background: Color(0xff2b2b2b)
                   ),
-                  shadowColor: const Color(0xfff5be49),
-                  selectedRowColor: const Color(0xfff5be49),
-                  cardColor: const Color(0xff004a98),
-                  scaffoldBackgroundColor: const Color(0xff011c50),
-                  dividerColor: const Color(0xfff5be49)),
+                  shadowColor: const Color(0xffF2CB55),
+                  selectedRowColor: const Color(0xffF2CB55),
+                  cardColor: const Color(0xff49A642),
+                  scaffoldBackgroundColor: const Color(0xff042623),
+                  dividerColor: const Color(0xffF2CB55)),
               theme: ThemeData(
                   brightness: Brightness.light,
                   textTheme: const TextTheme(
-                    headline5: TextStyle(color: Color(0xff004a98)),
-                    bodyText1: TextStyle(color: Color(0xff004a98)),
+                    headline5: TextStyle(color: Color(0xff49A642)),
+                    bodyText1: TextStyle(color: Color(0xff49A642)),
                     bodyText2: TextStyle(color: Colors.black),
-                    headline1: TextStyle(color: Color(0xff004a98)),
+                    headline1: TextStyle(color: Color(0xff49A642)),
                   ),
                   colorScheme: const ColorScheme.light(
-                      primary: Color(0xff004a98), primaryContainer: Color(0xff011c50), secondary: Color(0xfff5be49), secondaryContainer: Color(0xfff6dfc8)),
+                      primary: Color(0xff49A642), primaryContainer: Color(0xff042623), secondary: Color(0xffF2CB55), secondaryContainer: Color(0xfff6dfc8)),
                   cardColor: Colors.white,
                   shadowColor: Colors.black38,
-                  selectedRowColor: const Color(0xff004a98),
-                  dividerColor: const Color(0xfff5be49),
+                  selectedRowColor: const Color(0xff49A642),
+                  dividerColor: const Color(0xffF2CB55),
                   scaffoldBackgroundColor: Colors.grey[100]),
               home: Scaffold(
                 body: ValueListenableBuilder(
@@ -94,7 +100,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const List<Widget> _widgetOptions = <Widget>[Home(), Favourites(), Feed(), Account()];
+  static const List<Widget> _widgetOptions = <Widget>[Home(), Favourites(), Account()];
+  // static const List<Widget> _widgetOptions = <Widget>[Home(), Favourites(), Feed(), Account()];
 
   int _selectedIndex = 0;
 
@@ -134,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
               //TODO internationalize
               BottomNavigationBarItem(icon: Icon(Icons.waterfall_chart), label: "Home"),
               BottomNavigationBarItem(icon: Icon(Icons.star), label: "Favourites"),
-              BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Feed"),
+              // BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Feed"),
               BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Account"),
             ],
             currentIndex: _selectedIndex,

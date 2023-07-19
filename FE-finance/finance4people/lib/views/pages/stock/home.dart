@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
                         slivers: <Widget>[
                           SliverAppBar(
                             //TODO internationalize
-                            title: const Text("Welcome to Nous finance"),
+                            title: const Text("Benvenuto su Gobull"),
                             expandedHeight: MediaQuery.of(context).size.height * 0.2,
                             backgroundColor: Theme.of(context).colorScheme.primary,
                             forceElevated: true,

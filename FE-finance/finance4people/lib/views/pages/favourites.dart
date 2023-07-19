@@ -24,7 +24,7 @@ class _FavouritesState extends State<Favourites> {
   Widget build(BuildContext context) {
     List favsStocks = [];
     return ViewScaffold(
-        viewName: "Favorites",
+        viewName: "Preferiti",
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.75,
           child: ValueListenableBuilder(

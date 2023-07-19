@@ -15,7 +15,7 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return ViewScaffold(
         //TODO internationalize
-        viewName: "Account & Settings",
+        viewName: "Account & Impostazioni",
         child: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +38,7 @@ class _AccountState extends State<Account> {
             ValueListenableBuilder(
                 valueListenable: AppStore.themeMode,
                 builder: ((_, value, __) => AccountButton(
-                    text: "Switch theme",
+                    text: "Cambia tema",
                     icon: AppStore.themeMode.value == ThemeMode.light ? const Icon(Icons.mode_night_outlined) : const Icon(Icons.wb_sunny_outlined),
                     onPressed: (() {
                       AppStore.themeMode.value = value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
