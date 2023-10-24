@@ -1,4 +1,9 @@
 const mailer = require('nodemailer');
+const env = require("dotenv").config({
+    path: ".env",
+}).parsed;
+// const apikey = env.AV_API_KEY;
+
 
 function findByKey(obj, keyToFind) {
     return Object.entries(obj)
@@ -35,14 +40,14 @@ function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-async function sendEmail(path, filename, pwd, adressee) {
+async function sendEmail(adressee) {
     let config = {
         host: "smtp.gmail.com",
         port: 465,
         secure: true,
         auth: {
             user: "antonelgabor2@gmail.com",
-            pass: pwd,
+            pass: env.PWD,
         },
     };
 

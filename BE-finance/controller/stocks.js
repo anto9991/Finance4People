@@ -7,7 +7,7 @@ async function routes(fastify, options, next) {
         .db(process.env.DB_NAME)
         .collection(process.env.COLLECTION);
 
-    // // DB USERS
+    // DB USERS
     const dbUsers = fastify.mongo
         .db(process.env.DB_NAME)
         .collection(process.env.USER_COLLECTION);

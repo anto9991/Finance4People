@@ -4,6 +4,7 @@
 // arg source identifies csv with stock list (default is stockList.csv)
 
 console.log("---------- Start load data exexution ----------\n");
+let errors = []
 // https://data.nasdaq.com/api/v3/datatables/MER/F1.xml?&mapcode=-3851&compnumber=39102&reporttype=A&qopts.columns=reportdate,amount&
 // api_key=<YOURAPIKEY>
 const env = require("dotenv").config({
@@ -341,28 +342,42 @@ async function AlphaVantageDataLoad() {
         try {
             let stock = stockList[index];
 
-            // let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
-            // fs.writeFileSync("./dailyAdjusted.json", JSON.stringify(dailyAdjusted))
-            // let companyOverview = await AVCompanyOverview(stock.Symbol);
-            // fs.writeFileSync("./companyOverview.json", JSON.stringify(companyOverview))
-            // let balanceSheet = await AVBalanceSheet(stock.Symbol);
-            // fs.writeFileSync("./balanceSheet.json", JSON.stringify(balanceSheet))
-            // let incomeStatement = await AVIncomeStatement(stock.Symbol);
-            // fs.writeFileSync("./incomeStatement.json", JSON.stringify(incomeStatement))
-            // let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
-            // fs.writeFileSync("./weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
+            let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
+            fs.writeFileSync("./dailyAdjusted.json", JSON.stringify(dailyAdjusted))
+            let companyOverview = await AVCompanyOverview(stock.Symbol);
+            fs.writeFileSync("./companyOverview.json", JSON.stringify(companyOverview))
+            let balanceSheet = await AVBalanceSheet(stock.Symbol);
+            fs.writeFileSync("./balanceSheet.json", JSON.stringify(balanceSheet))
+            let incomeStatement = await AVIncomeStatement(stock.Symbol);
+            fs.writeFileSync("./incomeStatement.json", JSON.stringify(incomeStatement))
+            let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
+            fs.writeFileSync("./weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
 
-            let weeklyAdjusted = JSON.parse(fs.readFileSync("./weeklyAdjusted.json", "utf-8"));
-            let dailyAdjusted = JSON.parse(fs.readFileSync("./dailyAdjusted.json", "utf-8"));
-            let companyOverview = JSON.parse(fs.readFileSync("./companyOverview.json", "utf-8"));
-            let balanceSheet = JSON.parse(fs.readFileSync("./balanceSheet.json", "utf-8"));
-            let incomeStatement = JSON.parse(fs.readFileSync("./incomeStatement.json", "utf-8"));
+            // let balanceSheet = JSON.parse(fs.readFileSync("./AVjsons/balanceSheet.json", "utf-8"));
+            // let companyOverview = JSON.parse(fs.readFileSync("./AVjsons/companyOverview.json", "utf-8"));
+            // let dailyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/dailyAdjusted.json", "utf-8"));
+            // let incomeStatement = JSON.parse(fs.readFileSync("./AVjsons/incomeStatement.json", "utf-8"));
+            // let weeklyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/weeklyAdjusted.json", "utf-8"));
 
             // Parse series
-            let dailySeriesValues = Object.values(dailyAdjusted["Time Series (Daily)"])
-            let dailySeriesKeys = Object.keys(dailyAdjusted["Time Series (Daily)"])
-            let weeklySeriesValues = Object.values(weeklyAdjusted["Weekly Adjusted Time Series"])
-            let weeklySeriesKeys = Object.keys(weeklyAdjusted["Weekly Adjusted Time Series"])
+            let dailySeriesValues;
+            let dailySeriesKeys;
+            let weeklySeriesValues;
+            let weeklySeriesKeys;
+
+            try {
+                dailySeriesValues = Object.values(dailyAdjusted["Time Series (Daily)"])
+                dailySeriesKeys = Object.keys(dailyAdjusted["Time Series (Daily)"])
+                weeklySeriesValues = Object.values(weeklyAdjusted["Weekly Adjusted Time Series"])
+                weeklySeriesKeys = Object.keys(weeklyAdjusted["Weekly Adjusted Time Series"])
+            } catch (err) {
+                errors.push({
+                    date: new Date().toISOString(),
+                    error: err,
+                    location: "Parsing api Data"
+                });
+                console.log(err);
+            }
 
             let dailySeries = [];
             let weeklySeries = [];
@@ -427,7 +442,11 @@ async function AlphaVantageDataLoad() {
 
             break;
         } catch (err) {
-            errors.push(err);
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "Generic Error"
+            });
         }
     }
     console.log(errors)
@@ -461,6 +480,11 @@ async function AVCompanyOverview(symbol) {
             return res.data;
         })
         .catch((err) => {
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "CompanyOverview"
+            });
             console.log(err);
         });
 
@@ -474,6 +498,11 @@ async function AVBalanceSheet(symbol) {
             return res.data;
         })
         .catch((err) => {
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "BalanceSheet"
+            });
             console.log(err);
         });
 
@@ -487,6 +516,11 @@ async function AVIncomeStatement(symbol) {
             return res.data;
         })
         .catch((err) => {
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "IncomeStatement"
+            });
             console.log(err);
         });
 
@@ -500,6 +534,11 @@ async function AVDailiAdjusted(symbol) {
             return res.data;
         })
         .catch((err) => {
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "DailyAdjusted"
+            });
             console.log(err);
         });
 
@@ -513,6 +552,11 @@ async function AVWeeklyAdjusted(symbol) {
             return res.data;
         })
         .catch((err) => {
+            errors.push({
+                date: new Date().toISOString(),
+                error: err,
+                location: "WeeklyAdjusted"
+            });
             console.log(err);
         });
 
@@ -521,7 +565,9 @@ async function AVWeeklyAdjusted(symbol) {
 }
 
 try {
-    AlphaVantageDataLoad();
+    // AlphaVantageDataLoad();
+    utils.sendEmail("antonelgabor@gmail.com")
+
 } catch (e) {
     console.log(e);
 }

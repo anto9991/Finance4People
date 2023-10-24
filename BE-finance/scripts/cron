@@ -1,0 +1,5 @@
+PATH=/root/.nvm/versions/node/v19.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+
+0 22 * * 1-5 cd /root/projects/Finance4People/BE-finance/scripts/ && node apiDataLoad.js >> log/apiDataLoad-`date +\%F`.txt 2>&1
+0 5 22 11 * cd /root/projects/Finance4People/BE-finance/scripts/ && node seriesFirstUpload.js >> log/seriesFirstUpload-`date +\%F`.txt 2>&1
+0 12 * * * /usr/bin/certbot renew --quiet
