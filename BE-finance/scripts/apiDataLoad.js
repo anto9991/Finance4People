@@ -71,15 +71,16 @@ async function AlphaVantageDataLoad() {
                 let stock = stockList[index];
 
                 let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
-                fs.writeFileSync("./AVjsons/dailyAdjusted.json", JSON.stringify(dailyAdjusted))
                 let companyOverview = await AVCompanyOverview(stock.Symbol);
-                fs.writeFileSync("./AVjsons/companyOverview.json", JSON.stringify(companyOverview))
                 let balanceSheet = await AVBalanceSheet(stock.Symbol);
-                fs.writeFileSync("./AVjsons/balanceSheet.json", JSON.stringify(balanceSheet))
                 let incomeStatement = await AVIncomeStatement(stock.Symbol);
-                fs.writeFileSync("./AVjsons/incomeStatement.json", JSON.stringify(incomeStatement))
                 let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
-                fs.writeFileSync("./AVjsons/weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
+                
+                // fs.writeFileSync("./AVjsons/dailyAdjusted.json", JSON.stringify(dailyAdjusted))
+                // fs.writeFileSync("./AVjsons/companyOverview.json", JSON.stringify(companyOverview))
+                // fs.writeFileSync("./AVjsons/balanceSheet.json", JSON.stringify(balanceSheet))
+                // fs.writeFileSync("./AVjsons/incomeStatement.json", JSON.stringify(incomeStatement))
+                // fs.writeFileSync("./AVjsons/weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
 
                 // let balanceSheet = JSON.parse(fs.readFileSync("./AVjsons/balanceSheet.json", "utf-8"));
                 // let companyOverview = JSON.parse(fs.readFileSync("./AVjsons/companyOverview.json", "utf-8"));
