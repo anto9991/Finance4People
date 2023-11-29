@@ -52,9 +52,12 @@ async function AlphaVantageDataLoad() {
         // Create DB instance & get instance
         let dbInstance;
         try {
+            let time = new Date()
             dbInstance = await dbConnection()
             if(!dbInstance)
                 throw "DB connection failed"
+            console.log("Logging db Instance: " + dbInstance)
+            console.log("Time elapsed: " + (new Date() - time) )
         } catch (err) {
             errors.push({
                 date: new Date().toISOString(),
