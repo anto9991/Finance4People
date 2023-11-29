@@ -60,6 +60,7 @@ async function AlphaVantageDataLoad() {
                 location: "Db connection"
             });
         }
+        console.log(dbInstance)
         let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
 
         let stockList = await getCSVStockList("stockList.csv");
