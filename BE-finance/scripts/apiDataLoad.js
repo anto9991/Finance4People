@@ -180,8 +180,6 @@ async function AlphaVantageDataLoad() {
             }
         }
         console.log(errors)
-        dbInstance.close();
-        process.exit()
     } catch (err) {
         console.log(err)
         errors.push({
@@ -197,6 +195,8 @@ async function AlphaVantageDataLoad() {
             await fs.writeFileSync("./success.txt", JSON.stringify({ "Status": "Success" }))
             utils.sendEmail("antonelgabor@gmail.com", "Everything fine when executing apiDataLoad.", "success.txt", "./success.txt")
         }
+        dbInstance.close();
+        process.exit()
     }
 }
 
