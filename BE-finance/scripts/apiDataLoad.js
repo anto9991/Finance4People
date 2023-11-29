@@ -12,13 +12,13 @@ const axios = require("axios");
 const mongodb = require("mongodb").MongoClient;
 
 const apikey = env.AV_API_KEY;
-const today = new Date;
+// const today = new Date;
 const utils = require('./utils')
 const fs = require('fs');
 
 // f stands for formatted
 // const fToday = today.toISOString().split('T')[0]
-const oneYearAgo = new Date(today.setFullYear(today.getFullYear() - 1))
+// const oneYearAgo = new Date(today.setFullYear(today.getFullYear() - 1))
 // const fOneYearAgo = oneYearAgo.toISOString().split('T')[0]
 // ─────────────────────────────────────────────────────────────── Reading CSV ───────────────────────────────────────────────────────────────
 function getCSVStockList(source = "stockList.csv") {
