@@ -4,7 +4,6 @@
 // arg source identifies csv with stock list (default is stockList.csv)
 
 console.log("---------- Start load data exexution ----------\n");
-let errors = []
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
@@ -46,6 +45,7 @@ async function dbConnection() {
 }
 
 async function AlphaVantageDataLoad() {
+    let errors = [];
     try {
         // Create DB instance & get instance
         let dbInstance;
@@ -62,7 +62,6 @@ async function AlphaVantageDataLoad() {
 
         let stockList = await getCSVStockList("stockList.csv");
 
-        let errors = [];
 
         for (let index = 0; index < stockList.length; index++) {
             try {
