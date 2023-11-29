@@ -30,6 +30,7 @@ function getCSVStockList(source = "stockList.csv") {
 //
 async function dbConnection() {
     let url = env.DB_URL;
+    console.log("ENV db URL:" + env.DB_URL)
 
     // Mongo options
     let opts = {
@@ -57,7 +58,7 @@ async function AlphaVantageDataLoad() {
             errors.push({
                 date: new Date().toISOString(),
                 error: err,
-                location: "Db connection, DBInstance:" + dbInstance 
+                location: "Db connection" 
             });
         }
         console.log(dbInstance)
@@ -75,7 +76,7 @@ async function AlphaVantageDataLoad() {
                 let balanceSheet = await AVBalanceSheet(stock.Symbol);
                 let incomeStatement = await AVIncomeStatement(stock.Symbol);
                 let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
-                
+
                 // fs.writeFileSync("./AVjsons/dailyAdjusted.json", JSON.stringify(dailyAdjusted))
                 // fs.writeFileSync("./AVjsons/companyOverview.json", JSON.stringify(companyOverview))
                 // fs.writeFileSync("./AVjsons/balanceSheet.json", JSON.stringify(balanceSheet))
