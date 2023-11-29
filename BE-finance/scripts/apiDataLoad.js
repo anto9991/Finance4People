@@ -34,10 +34,10 @@ async function dbConnection() {
     console.log("ENV db URL:" + env.DB_URL)
 
     // Mongo options
-    // let opts = {
-    //     useNewUrlParser: true,
-    //     useUnifiedTopology: true
-    // };
+    let opts = {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    };
 
     try {
         return mongodb.connect(url, opts);
