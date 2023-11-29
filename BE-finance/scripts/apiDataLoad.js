@@ -50,35 +50,12 @@ async function dbConnection() {
     }
 }
 
-let recap = {
-    timestamp: new Date(),
-    filename: "dataLoad_" + fToday + ".json",
-    errors: [],
-    ok: []
-}
-
-async function getTwitterSearchCount(ticker) {
-    let url = "https://api.twitter.com/2/tweets/counts/recent"
-    let params = {
-        "query": ticker,
-        "granularity": "day"
-    }
-    let headers = {
-        "authorization": "Bearer " + env.TWITTER_BEARER_TOKEN
-    }
-    let config = {
-        headers: headers,
-        params: params
-    }
-    let res = await axios.get(url, config)
-        .then((res) => {
-            return res.data.meta.total_tweet_count
-        })
-        .catch((err) => {
-            console.log("Error: ", err)
-        })
-    return res;
-}
+// let recap = {
+//     timestamp: new Date(),
+//     filename: "dataLoad_" + fToday + ".json",
+//     errors: [],
+//     ok: []
+// }
 
 async function getRedditSerachCount() {
     let url = "https://www.reddit.com/search.json"
@@ -125,7 +102,7 @@ async function YahooMain() {
 
     for (let index = 0; index <= stockList.length; index++) {
         let stock = stockList[index];
-        let twitterCount = getTwitterSearchCount(stock.Symbol);
+        // let twitterCount = getTwitterSearchCount(stock.Symbol);
 
         console.log("Starting " + stock.Symbol);
         try {
@@ -251,7 +228,6 @@ async function YahooMain() {
             // console.log("\n\n----\nLogging financialsApi: ", financialsApi, "\n----\n\n")
             fs.writeFileSync("./financialsApiRes", financialsApi)
             fs.writeFileSync("./financials", financials)
-            break
 
             // El in pos 0 => last quarter(trimestre) prop (check yahoo finance to undestand why)
             let currentLiabilities = financials.balanceSheetHistoryQuarterly.balanceSheetStatements[0].totalCurrentLiabilities
@@ -268,7 +244,7 @@ async function YahooMain() {
                 forwardPE: financeStats.forwardPE,
                 trailingPE: financeStats.trailingPE,
                 trailingEPS: keyStats.trailingEps,
-                forwardEPS: financeStats.epsTrailingTwelveMonths,// r u sure m8?
+                forwardEPS: financeStats.epsTrailingTwelveMonths,
                 averageAnalystRating: financeStats.averageAnalystRating,
                 fiftyTwoWeekLow: financeStats.fiftyTwoWeekLow,
                 fiftyTwoWeekHigh: financeStats.fiftyTwoWeekHigh,
@@ -322,156 +298,178 @@ async function YahooMain() {
     // utils.sendEmail("./log/" + recap.filename, recap.filename, env.GMAIL_PWD, "antonelgabor@gmail.com");
     console.log("------------------------ End ------------------------")
 }
+// Is now 100$ per month
+async function getTwitterSearchCount(ticker) {
+    let url = "https://api.twitter.com/2/tweets/counts/recent"
+    let params = {
+        "query": ticker,
+        "granularity": "day"
+    }
+    let headers = {
+        "authorization": "Bearer " + env.TWITTER_BEARER_TOKEN
+    }
+    let config = {
+        headers: headers,
+        params: params
+    }
+    let res = await axios.get(url, config)
+        .then((res) => {
+            return res.data.meta.total_tweet_count
+        })
+        .catch((err) => {
+            console.log("Error: ", err)
+        })
+    return res;
+}
 
 async function AlphaVantageDataLoad() {
-    // Create DB instance & get instance
-    let dbInstance;
     try {
-        dbInstance = await dbConnection()
-    } catch (err) {
-        console.log("Logging err: \n", err);
-        // Break and notify
-    }
-    let dbStocks = dbInstance.db(env.DB_NAME).collection("Stocks")
-
-    let stockList = await getCSVStockList("stockList.csv");
-
-    let errors = [];
-
-    for (let index = 0; index <= 1; index++) {
+        // Create DB instance & get instance
+        let dbInstance;
         try {
-            let stock = stockList[index];
-
-            let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
-            fs.writeFileSync("./dailyAdjusted.json", JSON.stringify(dailyAdjusted))
-            let companyOverview = await AVCompanyOverview(stock.Symbol);
-            fs.writeFileSync("./companyOverview.json", JSON.stringify(companyOverview))
-            let balanceSheet = await AVBalanceSheet(stock.Symbol);
-            fs.writeFileSync("./balanceSheet.json", JSON.stringify(balanceSheet))
-            let incomeStatement = await AVIncomeStatement(stock.Symbol);
-            fs.writeFileSync("./incomeStatement.json", JSON.stringify(incomeStatement))
-            let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
-            fs.writeFileSync("./weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
-
-            // let balanceSheet = JSON.parse(fs.readFileSync("./AVjsons/balanceSheet.json", "utf-8"));
-            // let companyOverview = JSON.parse(fs.readFileSync("./AVjsons/companyOverview.json", "utf-8"));
-            // let dailyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/dailyAdjusted.json", "utf-8"));
-            // let incomeStatement = JSON.parse(fs.readFileSync("./AVjsons/incomeStatement.json", "utf-8"));
-            // let weeklyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/weeklyAdjusted.json", "utf-8"));
-
-            // Parse series
-            let dailySeriesValues;
-            let dailySeriesKeys;
-            let weeklySeriesValues;
-            let weeklySeriesKeys;
-
-            try {
-                dailySeriesValues = Object.values(dailyAdjusted["Time Series (Daily)"])
-                dailySeriesKeys = Object.keys(dailyAdjusted["Time Series (Daily)"])
-                weeklySeriesValues = Object.values(weeklyAdjusted["Weekly Adjusted Time Series"])
-                weeklySeriesKeys = Object.keys(weeklyAdjusted["Weekly Adjusted Time Series"])
-            } catch (err) {
-                errors.push({
-                    date: new Date().toISOString(),
-                    error: err,
-                    location: "Parsing api Data"
-                });
-                console.log(err);
-            }
-
-            let dailySeries = [];
-            let weeklySeries = [];
-
-            for (let i = 0; i < weeklySeriesValues.length; i++) {
-                if (i < dailySeriesValues.length) {
-                    let daily = {
-                        open: dailySeriesValues[i]["1. open"],
-                        close: dailySeriesValues[i]["4. close"],
-                        timestamp: Date.parse(dailySeriesKeys[0])
-                    }
-                    dailySeries.push(daily)
-                }
-                let weekly = {
-                    open: weeklySeriesValues[i]["1. open"],
-                    close: weeklySeriesValues[i]["4. close"],
-                    timestamp: Date.parse(weeklySeriesKeys[0])
-                }
-                weeklySeries.push(weekly)
-            }
-
-            let dbObject = {
-                symbol: companyOverview.Symbol,
-                name: companyOverview.Name,
-                currency: companyOverview.Currency,
-                country: companyOverview.Country,
-                sector: companyOverview.Sector,
-                industry: companyOverview.Industry,
-                volume: dailySeriesValues[0]["6. volume"],
-                marketCap: companyOverview.MarketCapitalization,
-                trailingPE: companyOverview.TrailingPE,
-                forwardPE: companyOverview.ForwardPE,
-                trailingEPS: companyOverview.EPS,
-                analystTargetPrice: companyOverview.AnalystTargetPrice,
-                beta: companyOverview.Beta,
-                enterpriseValue: companyOverview.EVToEBITDA * companyOverview.EBITDA,
-                returnOnCapital: incomeStatement.annualReports[0].ebit / (balanceSheet.annualReports[0].propertyPlantEquipment + (balanceSheet.annualReports[0].totalCurrentAssets - balanceSheet.annualReports[0].totalCurrentLiabilities)),
-                ebit: incomeStatement.annualReports[0].ebit,
-                propertyPlantEquipment: balanceSheet.annualReports[0].propertyPlantEquipment,
-                totalCurrentAssets: balanceSheet.annualReports[0].totalCurrentAssets,
-                totalCurrentLiabilities: balanceSheet.annualReports[0].totalCurrentLiabilities,
-                forwardPE: companyOverview.ForwardPE,
-                trailingPE: companyOverview.TrailingPE,
-                wh52: companyOverview["52WeekHigh"],
-                wl52: companyOverview["52WeekLow"],
-                twitterSearchCount: await getTwitterSearchCount(stock.Symbol),
-                series: {
-                    y1_d: dailySeries,
-                    y20_w: weeklySeries
-                }
-            };
-            let query = { symbol: stock.Symbol };
-            let update = { $set: dbObject };
-            let options = { upsert: true };
-
-            // Check date to update DB only once a day
-            let insertFinance = await dbStocks.updateOne(query, update, options)
-
-            if (!insertFinance.acknowledged || !(insertFinance.modifiedCount > 0)) {
-                throw "Something went wrong for " + stock.Symbol + "(Ack: " + insertFinance.acknowledged + ",ModifiedCount: " + insertFinance.modifiedCount + ")";
-            }
-
-            break;
+            dbInstance = await dbConnection()
         } catch (err) {
             errors.push({
                 date: new Date().toISOString(),
                 error: err,
-                location: "Generic Error"
+                location: "Db connection"
             });
         }
+        let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
+
+        let stockList = await getCSVStockList("stockList.csv");
+
+        let errors = [];
+
+        for (let index = 0; index < 1; index++) {
+            try {
+                let stock = stockList[index];
+
+                let dailyAdjusted = await AVDailiAdjusted(stock.Symbol);
+                fs.writeFileSync("./AVjsons/dailyAdjusted.json", JSON.stringify(dailyAdjusted))
+                let companyOverview = await AVCompanyOverview(stock.Symbol);
+                fs.writeFileSync("./AVjsons/companyOverview.json", JSON.stringify(companyOverview))
+                let balanceSheet = await AVBalanceSheet(stock.Symbol);
+                fs.writeFileSync("./AVjsons/balanceSheet.json", JSON.stringify(balanceSheet))
+                let incomeStatement = await AVIncomeStatement(stock.Symbol);
+                fs.writeFileSync("./AVjsons/incomeStatement.json", JSON.stringify(incomeStatement))
+                let weeklyAdjusted = await AVWeeklyAdjusted(stock.Symbol);
+                fs.writeFileSync("./AVjsons/weeklyAdjusted.json", JSON.stringify(weeklyAdjusted))
+
+                // let balanceSheet = JSON.parse(fs.readFileSync("./AVjsons/balanceSheet.json", "utf-8"));
+                // let companyOverview = JSON.parse(fs.readFileSync("./AVjsons/companyOverview.json", "utf-8"));
+                // let dailyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/dailyAdjusted.json", "utf-8"));
+                // let incomeStatement = JSON.parse(fs.readFileSync("./AVjsons/incomeStatement.json", "utf-8"));
+                // let weeklyAdjusted = JSON.parse(fs.readFileSync("./AVjsons/weeklyAdjusted.json", "utf-8"));
+
+                // Parse series
+                let dailySeriesValues;
+                let dailySeriesKeys;
+                let weeklySeriesValues;
+                let weeklySeriesKeys;
+
+                try {
+                    dailySeriesValues = Object.values(dailyAdjusted["Time Series (Daily)"])
+                    dailySeriesKeys = Object.keys(dailyAdjusted["Time Series (Daily)"])
+                    weeklySeriesValues = Object.values(weeklyAdjusted["Weekly Adjusted Time Series"])
+                    weeklySeriesKeys = Object.keys(weeklyAdjusted["Weekly Adjusted Time Series"])
+                } catch (err) {
+                    errors.push({
+                        date: new Date().toISOString(),
+                        error: err,
+                        location: "Parsing api Data"
+                    });
+                    console.log(err);
+                }
+
+                let dailySeries = [];
+                let weeklySeries = [];
+
+                for (let i = 0; i < weeklySeriesValues.length; i++) {
+                    if (i < dailySeriesValues.length) {
+                        let daily = {
+                            open: dailySeriesValues[i]["1. open"],
+                            close: dailySeriesValues[i]["4. close"],
+                            timestamp: Date.parse(dailySeriesKeys[0])
+                        }
+                        dailySeries.push(daily)
+                    }
+                    let weekly = {
+                        open: weeklySeriesValues[i]["1. open"],
+                        close: weeklySeriesValues[i]["4. close"],
+                        timestamp: Date.parse(weeklySeriesKeys[0])
+                    }
+                    weeklySeries.push(weekly)
+                }
+
+                let dbObject = {
+                    symbol: companyOverview.Symbol,
+                    name: companyOverview.Name,
+                    currency: companyOverview.Currency,
+                    country: companyOverview.Country,
+                    sector: companyOverview.Sector,
+                    industry: companyOverview.Industry,
+                    volume: dailySeriesValues[0]["6. volume"],
+                    marketCap: companyOverview.MarketCapitalization,
+                    trailingPE: companyOverview.TrailingPE,
+                    forwardPE: companyOverview.ForwardPE,
+                    trailingEPS: companyOverview.EPS,
+                    analystTargetPrice: companyOverview.AnalystTargetPrice,
+                    beta: companyOverview.Beta,
+                    enterpriseValue: companyOverview.EVToEBITDA * companyOverview.EBITDA,
+                    returnOnCapital: incomeStatement.annualReports[0].ebit / (balanceSheet.annualReports[0].propertyPlantEquipment + (balanceSheet.annualReports[0].totalCurrentAssets - balanceSheet.annualReports[0].totalCurrentLiabilities)),
+                    ebit: incomeStatement.annualReports[0].ebit,
+                    propertyPlantEquipment: balanceSheet.annualReports[0].propertyPlantEquipment,
+                    totalCurrentAssets: balanceSheet.annualReports[0].totalCurrentAssets,
+                    totalCurrentLiabilities: balanceSheet.annualReports[0].totalCurrentLiabilities,
+                    forwardPE: companyOverview.ForwardPE,
+                    trailingPE: companyOverview.TrailingPE,
+                    wh52: companyOverview["52WeekHigh"],
+                    wl52: companyOverview["52WeekLow"],
+                    // twitterSearchCount: await getTwitterSearchCount(stock.Symbol),
+                    series: {
+                        y1_d: dailySeries,
+                        y20_w: weeklySeries
+                    }
+                };
+                let query = { symbol: stock.Symbol };
+                let update = { $set: dbObject };
+                let options = { upsert: true };
+
+                // Check date to update DB only once a day
+                let insertFinance = await dbStocks.updateOne(query, update, options)
+                if (!insertFinance.acknowledged && (insertFinance.modifiedCount == 0 || insertFinance.upsertedCount == 0)) {
+                    throw "Something went wrong for " + stock.Symbol + "(Ack: " + insertFinance.acknowledged + ",ModifiedCount: " + insertFinance.modifiedCount + ", UpsertCount: "+ insertFinance.upsertedCount +")";
+                }
+            } catch (err) {
+                errors.push({
+                    date: new Date().toISOString(),
+                    error: err,
+                    location: "Generic Error"
+                });
+            }
+        }
+        console.log(errors)
+        dbInstance.close();
+        process.exit()
+    } catch (err) {
+        errors.push({
+            date: new Date().toISOString(),
+            error: err,
+            location: "Generic Error (Outer block)"
+        });
+    } finally {
+        console.log("Sending email")
+        if (errors.length > 0) {
+            await fs.writeFileSync("./errors.txt", JSON.stringify(errors))
+            utils.sendEmail("antonelgabor@gmail.com", "Some errors were find when executing apiDataLoad, logs in attachments.", "errors.txt", "./errors.txt");
+        } else {
+            await fs.writeFileSync("./success.txt", JSON.stringify({ "Status": "Success" }))
+            utils.sendEmail("antonelgabor@gmail.com", "Everything fine when executing apiDataLoad.", "success.txt", "./success.txt")
+        }
     }
-    console.log(errors)
-    dbInstance.close();
-    process.exit()
 }
 
-// async function testEV() {
-//     // let resapi = await axios.get("https://www.alphavantage.co/query?function=OVERVIEW&symbol=AAPL&apikey=05NAQX1COY586KJX")
-//     //     .then((res) => {
-//     //         return res.data;
-//     //     })
-//     //     .catch((err) => {
-//     //         console.log("Error: ", err)
-//     //     })
-//         // fs.writeFileSync("./aplhaOverview", JSON.stringify(resapi))
-//     let resover = JSON.parse(fs.readFileSync("./aplhaOverview.json", "utf-8"));
-//     let res = JSON.parse(fs.readFileSync("./aplhavantagetest.json", "utf-8"));
-//     let data1 = res.annualReports[0];
-//     console.log(resover.MarketCapitalization)
-//     let enterpriseValue = resover.MarketCapitalization + data1.shortTermDebt + data1.longTermDebt - data1.cashAndCashEquivalentsAtCarryingValue
-//     let enterpriseValue2 = resover.EBITDA * resover.EVToEBITDA
-//     console.log(enterpriseValue)
-//     console.log(enterpriseValue2)
-// }
 
 async function AVCompanyOverview(symbol) {
     let url = "https://www.alphavantage.co/query?function=OVERVIEW&symbol=" + symbol + "&apikey=" + apikey
@@ -563,11 +561,28 @@ async function AVWeeklyAdjusted(symbol) {
     if (request) return request
     else throw new Error("Daily adjusted api call failed");
 }
+// async function YahooDaily(symbol){
+//     https://query1.finance.yahoo.com/v8/finance/chart/AAPL?region=US&lang=en-US&includePrePost=false&interval=30m&useYfid=true&range=1mo&corsDomain=finance.yahoo.com&.tsrc=finance
+//     let url = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol + "&apikey=" + apikey
+//     let request = await axios.get(url)
+//         .then((res) => {
+//             return res.data;
+//         })
+//         .catch((err) => {
+//             errors.push({
+//                 date: new Date().toISOString(),
+//                 error: err,
+//                 location: "DailyAdjusted"
+//             });
+//             console.log(err);
+//         });
+
+//     if (request) return request
+//     else throw new Error("Yahoo Daily api call failed");
+// }
 
 try {
-    // AlphaVantageDataLoad();
-    utils.sendEmail("antonelgabor@gmail.com")
-
+    AlphaVantageDataLoad();
 } catch (e) {
     console.log(e);
 }

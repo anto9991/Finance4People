@@ -1,8 +1,7 @@
 const mailer = require('nodemailer');
 const env = require("dotenv").config({
-    path: ".env",
+    path: "../.env",
 }).parsed;
-// const apikey = env.AV_API_KEY;
 
 
 function findByKey(obj, keyToFind) {
@@ -40,28 +39,31 @@ function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-async function sendEmail(adressee) {
+async function sendEmail(adressee, message, filename, path) {
     let config = {
         host: "smtp.gmail.com",
         port: 465,
         secure: true,
         auth: {
             user: "antonelgabor2@gmail.com",
-            pass: env.PWD,
+            pass: env.GMAIL_PWD,
         },
     };
 
     let transporter = mailer.createTransport(config);
-    await transporter.sendMail({
+    let mail = {
         from: '"Data loader script" <script_server@gmail.com>',
         to: adressee,
         subject: "API data load recap",
-        text: "Here's today's data load recap",
-        // attachments: [{
-        //     filename: filename,
-        //     path: path
-        // }]
-    });
+        text: message,
+    }
+    if (filename && path) {
+        mail.attachments = {
+            filename: filename,
+            path: path
+        }
+    }
+    await transporter.sendMail(mail);
 }
 
 module.exports = {
