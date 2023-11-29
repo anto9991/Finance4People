@@ -11,19 +11,16 @@ const env = require("dotenv").config({
 const csv = require('csvtojson');
 const axios = require("axios");
 const mongodb = require("mongodb").MongoClient;
-const md5 = require('md5');
 
 const apikey = env.AV_API_KEY;
 const today = new Date;
-const agent = "Load script";
-const index = "SP500"
 const utils = require('./utils')
 const fs = require('fs');
 
 // f stands for formatted
-const fToday = today.toISOString().split('T')[0]
+// const fToday = today.toISOString().split('T')[0]
 const oneYearAgo = new Date(today.setFullYear(today.getFullYear() - 1))
-const fOneYearAgo = oneYearAgo.toISOString().split('T')[0]
+// const fOneYearAgo = oneYearAgo.toISOString().split('T')[0]
 // ─────────────────────────────────────────────────────────────── Reading CSV ───────────────────────────────────────────────────────────────
 function getCSVStockList(source = "stockList.csv") {
     return csv().fromFile(source);
@@ -179,6 +176,7 @@ async function AlphaVantageDataLoad() {
         dbInstance.close();
         process.exit()
     } catch (err) {
+        console.log(err)
         errors.push({
             date: new Date().toISOString(),
             error: err,
