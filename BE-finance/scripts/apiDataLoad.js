@@ -57,7 +57,7 @@ async function AlphaVantageDataLoad() {
             errors.push({
                 date: new Date().toISOString(),
                 error: err,
-                location: "Db connection"
+                location: "Db connection, DBInstance:" + dbInstance 
             });
         }
         console.log(dbInstance)
