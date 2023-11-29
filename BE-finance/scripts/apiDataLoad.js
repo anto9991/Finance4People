@@ -51,6 +51,8 @@ async function AlphaVantageDataLoad() {
         let dbInstance;
         try {
             dbInstance = await dbConnection()
+            if(!dbInstance)
+                throw "DB connection failed"
         } catch (err) {
             errors.push({
                 date: new Date().toISOString(),
