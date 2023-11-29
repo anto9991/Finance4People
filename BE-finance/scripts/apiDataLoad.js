@@ -4,6 +4,7 @@
 // arg source identifies csv with stock list (default is stockList.csv)
 
 console.log("---------- Start load data exexution ----------\n");
+console.log(`---------- Date ${new Date().toISOString()}----------\n`);
 const env = require("dotenv").config({
     path: "../.env",
 }).parsed;
@@ -61,7 +62,6 @@ async function AlphaVantageDataLoad() {
                 location: "Db connection" 
             });
         }
-        console.log(dbInstance)
         let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
 
         let stockList = await getCSVStockList("stockList.csv");
@@ -187,7 +187,6 @@ async function AlphaVantageDataLoad() {
             location: "Generic Error (Outer block)"
         });
     } finally {
-        console.log("Sending email")
         if (errors.length > 0) {
             await fs.writeFileSync("./errors.txt", JSON.stringify(errors))
             utils.sendEmail("antonelgabor@gmail.com", "Some errors were find when executing apiDataLoad, logs in attachments.", "errors.txt", "./errors.txt");
