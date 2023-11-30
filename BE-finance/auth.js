@@ -8,7 +8,7 @@ const verifyAppleToken = require('verify-apple-id-token').default;
 // module.exports = fastifyPlugin()
 module.exports = fastifyPlugin(async (fastify, opts) => {
 
-  async function checkAuth(request, reply, done) {
+  async function checkAuth(request, reply) {
     try {
       var headerSplit = request.headers.authorization.split(" ");
       var code = headerSplit[2];
