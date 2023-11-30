@@ -77,92 +77,60 @@ async function routes(fastify, options, next) {
                 ]
                 if (catType == null || catType == "Greenblatt") {
 
-                    // var start1 = Date.now();
-
-                    // let dataCheck = await db.find({});
-
-                    // console.log("\n----\nData query info", dataCheck, "\n----\n")
-                    // var end1 = Date.now();
-                    // console.log("\n---\nTime to get data from DB", end1 - start1);
-
                     let data = await db.find({}).toArray();
                     // var start2 = Date.now();
                     for (let index in data) {
                         let stock = data[index];
-                        let keyStatsIndex = 10;
                         // Skip stocks with marketCap unde 100M
-                        if (stock.keyStatistics[keyStatsIndex]?.data.marketCap < 100000000) continue;
-                        
+                        if (parseInt(stock.marketCap) < 100000000) continue;
+
                         // Skip financial or utility
-                        if (stock.sector == "Utilities" || stock.sector == "Financials") continue;
+                        if (stock.sector == "ENERGY & TRANSPORTATION" || stock.sector == "FINANCE") continue;
 
-                        let keyStats = stock.keyStatistics[keyStatsIndex];
-                        if (keyStats && keyStats.data) {
-                            // Calulate earning yield
-                            let earningYield;
-                            if (keyStats.data.ebit && keyStats.data.enterpriseValue) {
-                                earningYield = keyStats.data.ebit.raw / keyStats.data.enterpriseValue.raw;
-                            } else continue;
-                            let returnOnCapital;
-                            // Calulate return on capital
-                            if (keyStats.data.ebit && keyStats.data.netPPE && keyStats.data.currentAssets && keyStats.data.currentLiabilities) {
-                                returnOnCapital = keyStats.data.ebit.raw
-                                    / (keyStats.data.netPPE.raw + (keyStats.data.currentAssets.raw - keyStats.data.currentLiabilities.raw))
-                            } else continue;    
-                            // let keystats = stock.keyStatistics[keyStatsIndex].data;
-                            // let returnStocks = {
-                            //     ticker: stock.ticker,
-                            //     name: stock.name,
-                            //     sector: stock.sector,
-                            //     currency: stock.currency,
-                            //     dataDate: stock.keyStatistics,
-                            //     beta: keystats.beta,
-                            //     enterpriseValue: keystats.enterpriseValue.raw,
-                            //     earningYield: earningYield,
-                            //     returnOnCapital: returnOnCapital,
-                            // };
+                        // Calulate earning yield
+                        let earningYield;
+                        if (stock.ebit && stock.enterpriseValue) {
+                            earningYield = stock.ebit / stock.enterpriseValue
+                        } else continue;
 
-                            stock.keyStatistics[keyStatsIndex].data.earningYield = earningYield * 100;
-                            stock.keyStatistics[keyStatsIndex].data.returnOnCapital = returnOnCapital * 100;
+                        let returnOnCapital;
+                        if (stock.ebit && stock.propertyPlantEquipment && stock.totalCurrentAssets && stock.totalCurrentLiabilities) {
+                            returnOnCapital = stock.ebit
+                                / (stock.propertyPlantEquipment + (stock.totalCurrentAssets - stock.totalCurrentLiabilities))
+                        } else continue;
 
-                            // Return just one specific date
-                            stock.keyStatistics = stock.keyStatistics[keyStatsIndex]
-                            if (beta) {
-                                if (keyStats.data.beta.raw != undefined) {
-                                    if (keyStats.data.beta.raw > 1.5) {
-                                        categories[0].stocks.push(stock);
-                                    }
-                                    if (keyStats.data.beta.raw > 1.0 && keyStats.data.beta.raw < 1.5) {
-                                        categories[1].stocks.push(stock);
-                                    }
-                                    if (keyStats.data.beta.raw > 0.5 && keyStats.data.beta.raw < 1.0) {
-                                        categories[2].stocks.push(stock);
-                                    }
-                                    if (keyStats.data.beta.raw < 0.5) {
-                                        categories[3].stocks.push(stock);
-                                    }
+                        stock.earningYield = earningYield * 100;
+                        stock.returnOnCapital = returnOnCapital * 100;
+
+                        if (beta) {
+                            if (stock.beta != undefined) {
+                                if (stock.beta > 1.5) {
+                                    categories[0].stocks.push(stock);
                                 }
-                            } else {
-                                result.push(stock);
+                                if (stock.beta > 1.0 && stock.beta < 1.5) {
+                                    categories[1].stocks.push(stock);
+                                }
+                                if (stock.beta > 0.5 && stock.beta < 1.0) {
+                                    categories[2].stocks.push(stock);
+                                }
+                                if (stock.beta < 0.5) {
+                                    categories[3].stocks.push(stock);
+                                }
                             }
+                        } else {
+                            result.push(stock);
                         }
                     }
-                    // var end2 = Date.now();
-                    // console.log("Time to format data", end2 - start2);
-                    // // Sort by best EY and ROC
-                    // var start3 = Date.now();
+
                     for (let catIndex in categories) {
                         let category = categories[catIndex];
                         category.stocks.sort((a, b) => ((b.earningYield + b.returnOnCapital) - (a.earningYield + a.returnOnCapital)));
                     }
-                    // var end3 = Date.now();
-                    // console.log("Time to format data", end3 - start3);
-                    // console.log("\n---------------------This is beta", beta, "---------------------\n");
 
                     return respF(reply, beta ? categories : result);
                 }
             } catch (err) {
-                console.log(Date.now(),"\n", err)
+                console.log(Date.now(), "\n", err)
             }
         },
     });
@@ -233,7 +201,7 @@ async function routes(fastify, options, next) {
                         let keyStatsIndex = 10;
                         // Skip stocks with marketCap unde 100M
                         if (stock.keyStatistics[keyStatsIndex]?.data.marketCap < 100000000) continue;
-                        
+
                         // Skip financial or utility
                         if (stock.sector == "Utilities" || stock.sector == "Financials") continue;
 
@@ -249,7 +217,7 @@ async function routes(fastify, options, next) {
                             if (keyStats.data.ebit && keyStats.data.netPPE && keyStats.data.currentAssets && keyStats.data.currentLiabilities) {
                                 returnOnCapital = keyStats.data.ebit.raw
                                     / (keyStats.data.netPPE.raw + (keyStats.data.currentAssets.raw - keyStats.data.currentLiabilities.raw))
-                            } else continue;    
+                            } else continue;
                             // let keystats = stock.keyStatistics[keyStatsIndex].data;
                             // let returnStocks = {
                             //     ticker: stock.ticker,
@@ -303,7 +271,7 @@ async function routes(fastify, options, next) {
                     return respF(reply, beta ? categories : result);
                 }
             } catch (err) {
-                console.log(Date.now(),"\n", err)
+                console.log(Date.now(), "\n", err)
             }
         },
     });
@@ -380,341 +348,6 @@ async function routes(fastify, options, next) {
             }
         },
     });
-    //
-    // ───────────────────────────────────────────── DELETE CONTACT ─────
-    //
-    // Basic post
-    // fastify.route({
-    //     url: "/routine/template",
-    //     method: "POST",
-    //     schema: {
-    //       body: {
-    //         type: "object",
-    //         required: ["id", "templates"],
-    //         properties: {
-    //           id: {
-    //             type: "string",
-    //           },
-    //           templates: {
-    //             type: "array",
-    //             items: {
-    //               type: "object",
-    //               required: ["id", "hour", "step", "sendAfter"],
-    //               properties: {
-    //                 id: {
-    //                   type: "string",
-    //                 },
-    //                 complete: {
-    //                   type: "boolean",
-    //                 },
-    //                 hour: {
-    //                   type: "number",
-    //                   min: 0,
-    //                   max: 23,
-    //                 },
-    //                 step: {
-    //                   type: "number",
-    //                   min: 0,
-    //                 },
-    //                 sendAfter: {
-    //                   type: "number",
-    //                   min: 0,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //       },
-    //       response: {
-    //         200: {
-    //           type: "object",
-    //           properties: {
-    //             message: { type: "string" },
-    //           },
-    //         },
-    //       },
-    //     },
-    //     preValidation: [fastify.authForced],
-    //     handler: async (request, reply) => {
-    //       try {
-    //         let inputData = request.body;
-    //         //   throw fastify.httpErrors.notFound();
-    //       } catch (error) {
-    //         console.error(error);
-    //         throw fastify.httpErrors.badRequest(error);
-    //       }
-    //     },
-    //   });
-
-    // fastify.route({
-    //     url: "/contact",
-    //     method: "DELETE",
-    //     schema: {
-    //         body: {
-    //             type: "object",
-    //             required: ["id"],
-    //             properties: {
-    //                 id: {
-    //                     type: "string",
-    //                 },
-    //             },
-    //         },
-    //         response: {
-    //             200: {
-    //                 type: "object",
-    //                 properties: {
-    //                     message: { type: "string" },
-    //                 },
-    //             },
-    //         },
-    //     },
-    //     preValidation: [fastify.authForced],
-    //     handler: async (request, reply) => {
-    //         let id = request.body.id;
-
-    //         let data = await db.findOne({ _id: id });
-
-    //         // Get contact from cache or set it
-    //         if (data) {
-    //             await db.removeOne({
-    //                 _id: id,
-    //             });
-
-    //             return respF(reply, { message: "ok" });
-    //         } else {
-    //             throw fastify.httpErrors.notFound();
-    //         }
-    //     },
-    // });
-
-    // //
-    // // ───────────────────────────────────────────── UPDATE CONTACT ─────
-    // //
-    // fastify.route({
-    //     url: "/contact",
-    //     method: "PUT",
-    //     schema: {
-    //         body: {
-    //             type: "object",
-    //             required: ["id"],
-    //             properties: {
-    //                 id: {
-    //                     type: "string",
-    //                 },
-    //                 name: {
-    //                     type: "string",
-    //                 },
-    //                 surname: {
-    //                     type: "string",
-    //                 },
-    //                 email: {
-    //                     type: "string",
-    //                 },
-    //                 phoneNumber: {
-    //                     type: "string",
-    //                 },
-    //                 company: {
-    //                     type: "string",
-    //                 },
-    //                 website: {
-    //                     type: "string",
-    //                 },
-    //                 description: {
-    //                     type: "string",
-    //                 },
-    //                 locale: {
-    //                     type: "string",
-    //                 },
-    //                 groups: {
-    //                     type: "array",
-    //                     items: {
-    //                         type: "string",
-    //                     },
-    //                 },
-    //             },
-    //         },
-    //         response: {
-    //             200: {
-    //                 type: "object",
-    //                 properties: {
-    //                     message: { type: "string" },
-    //                 },
-    //             },
-    //         },
-    //     },
-    //     preValidation: [fastify.authForced],
-    //     handler: async (request, reply) => {
-    //         try {
-    //             let inputData = request.body;
-
-    //             let data = await db.findOne({ _id: inputData.id });
-
-    //             // Get contact from cache or set it
-    //             if (data) {
-    //                 await db.updateOne(
-    //                     {
-    //                         _id: inputData.id,
-    //                     },
-    //                     {
-    //                         $set: {
-    //                             ["email"]: inputData.email ? inputData.email : data.email,
-    //                             ["name"]: inputData.name ? inputData.name : data.name,
-    //                             ["surname"]: inputData.surname
-    //                                 ? inputData.surname
-    //                                 : data.surname,
-    //                             ["phoneNumber"]: inputData.phoneNumber
-    //                                 ? inputData.phoneNumber
-    //                                 : data.phoneNumber,
-    //                             ["company"]: inputData.company
-    //                                 ? inputData.company
-    //                                 : data.company,
-    //                             ["website"]: inputData.website
-    //                                 ? inputData.website
-    //                                 : data.website,
-    //                             ["description"]: inputData.description
-    //                                 ? inputData.description
-    //                                 : data.description,
-    //                             ["locale"]: inputData.locale ? inputData.locale : data.locale,
-    //                             ["groups"]: inputData.groups
-    //                                 ? inputData.groups && inputData.groups.length > 0
-    //                                     ? inputData.groups
-    //                                     : []
-    //                                 : data.groups,
-    //                             ["updatedAt"]: new Date()().toISOString(),
-    //                         },
-    //                     }
-    //                 );
-    //                 return respF(reply, { message: "ok" });
-    //             } else {
-    //                 throw fastify.httpErrors.notFound();
-    //             }
-    //         } catch (error) {
-    //             console.error(error);
-    //             throw fastify.httpErrors.badRequest(error);
-    //         }
-    //     },
-    // });
-
-    // //
-    // // ───────────────────────────────────────────── GET CONTACTS ────────
-    // //
-    // fastify.route({
-    //     url: "/contacts",
-    //     method: "GET",
-    //     schema: {},
-    //     response: {
-    //         200: {
-    //             type: "object",
-    //             properties: {
-    //                 id: { type: "string" },
-    //                 email: { type: "string" },
-    //                 surname: { type: "string" },
-    //                 name: { type: "string" },
-    //                 phoneNumber: { type: "string" },
-    //                 company: { type: "string" },
-    //                 website: { type: "string" },
-    //                 groups: {
-    //                     type: "array",
-    //                     items: {
-    //                         type: "string",
-    //                     },
-    //                 },
-    //                 locale: { type: "string" },
-    //             },
-    //         },
-    //     },
-    //     preValidation: [fastify.authForced],
-    //     handler: async (request, reply) => {
-    //         let data = await db.find({}).toArray();
-
-    //         // Get contacts
-    //         if (data) {
-    //             let response = data.map((contact) => {
-    //                 return {
-    //                     id: contact._id,
-    //                     email: contact.email,
-    //                     surname: contact.surname,
-    //                     name: contact.name,
-    //                     phoneNumber: contact.phoneNumber,
-    //                     company: contact.company,
-    //                     website: contact.website,
-    //                     locale: contact.locale,
-    //                     groups: contact.groups,
-    //                 };
-    //             });
-
-    //             return respF(reply, response);
-    //         } else {
-    //             throw fastify.httpErrors.notFound();
-    //         }
-    //     },
-    // });
-
-    // //
-    // // ───────────────────────────────────────────── GET CONTACT ────────
-    // //
-    // fastify.route({
-    //     url: "/contact",
-    //     method: "GET",
-    //     schema: {
-    //         querystring: {
-    //             type: "object",
-    //             required: ["id"],
-    //             properties: {
-    //                 id: {
-    //                     type: "string",
-    //                 },
-    //             },
-    //         },
-    //     },
-    //     response: {
-    //         200: {
-    //             type: "object",
-    //             properties: {
-    //                 id: { type: "string" },
-    //                 email: { type: "string" },
-    //                 surname: { type: "string" },
-    //                 name: { type: "string" },
-    //                 phoneNumber: { type: "string" },
-    //                 company: { type: "string" },
-    //                 website: { type: "string" },
-    //                 locale: { type: "string" },
-    //                 groups: {
-    //                     type: "array",
-    //                     items: {
-    //                         type: "string",
-    //                     },
-    //                 },
-    //                 description: { type: "string" },
-    //             },
-    //         },
-    //     },
-    //     preValidation: [fastify.authForced],
-    //     handler: async (request, reply) => {
-    //         let id = request.query.id;
-
-    //         let data = await db.findOne({ _id: id });
-
-    //         // Get contact from cache or set it
-    //         if (data) {
-    //             let response = {
-    //                 id: data._id,
-    //                 email: data.email,
-    //                 surname: data.surname,
-    //                 name: data.name,
-    //                 phoneNumber: data.phoneNumber,
-    //                 company: data.company,
-    //                 website: data.website,
-    //                 locale: data.locale,
-    //                 groups: data.groups,
-    //                 description: data.description,
-    //             };
-    //             return respF(reply, response);
-    //         } else {
-    //             throw fastify.httpErrors.notFound();
-    //         }
-    //     },
-    // });
 }
 
 module.exports = routes;
