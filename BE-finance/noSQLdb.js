@@ -4,7 +4,7 @@
 const fp = require("fastify-plugin");
 const mongodb = require("mongodb").MongoClient;
 // CREATE THE PLUGIN
-module.exports = fp(async (fastify, opts) => { 
+module.exports = fp(async (fastify, opts, next) => { 
   // Set the correct url
   prod = true;
   let url = process.env.DB_URL;
@@ -15,4 +15,5 @@ module.exports = fp(async (fastify, opts) => {
   // Decorate to set the property of mongo everywhere in the app
   const db = await mongodb.connect(url, opts);
   fastify.decorate("mongo", db);
+  next()
 });
