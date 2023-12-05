@@ -31,7 +31,6 @@ function getCSVStockList(source = "stockList.csv") {
 //
 async function dbConnection() {
     let url = env.DB_URL;
-    console.log("ENV db URL:" + env.DB_URL)
 
     // Mongo options
     let opts = {
@@ -48,9 +47,10 @@ async function dbConnection() {
 
 async function AlphaVantageDataLoad() {
     let errors = [];
+    let stocksUpdated = 0
+    // Create DB instance & get instance
+    let dbInstance;
     try {
-        // Create DB instance & get instance
-        let dbInstance;
         try {
             dbInstance = await dbConnection()
             if(!dbInstance)
@@ -68,7 +68,8 @@ async function AlphaVantageDataLoad() {
         let stockList = await getCSVStockList("stockList.csv");
 
 
-        for (let index = 0; index < stockList.length; index++) {
+        // for (let index = 0; index < stockList.length; index++) {
+        for (let index = 0; index < 2; index++) {
             try {
                 let stock = stockList[index];
 
@@ -176,8 +177,10 @@ async function AlphaVantageDataLoad() {
                     location: "Generic Error"
                 });
             }
+            stocksUpdated++;
         }
-        console.log(errors)
+        console.log("Errors: "+ errors)
+        console.log("Stocks updated: " + stocksUpdated)
     } catch (err) {
         console.log(err)
         errors.push({
@@ -190,7 +193,7 @@ async function AlphaVantageDataLoad() {
             await fs.writeFileSync("./errors.txt", JSON.stringify(errors))
             utils.sendEmail("antonelgabor@gmail.com", "Some errors were find when executing apiDataLoad, logs in attachments.", "errors.txt", "./errors.txt");
         } else {
-            await fs.writeFileSync("./success.txt", JSON.stringify({ "Status": "Success" }))
+            await fs.writeFileSync("./success.txt", JSON.stringify({ "Status": "Success", "StocksUpdated": stocksUpdated }))
             utils.sendEmail("antonelgabor@gmail.com", "Everything fine when executing apiDataLoad.", "success.txt", "./success.txt")
         }
         dbInstance.close();
