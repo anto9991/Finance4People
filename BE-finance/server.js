@@ -64,7 +64,6 @@ fastify.register(require("@fastify/sensible"));
 //
 // ───────────────────────────────────────────────────── SERVER CONFIGURATION ─────
 //
-
 // DB
 fastify.register(require("./noSQLdb"));
 // fastify.register(require("@fastify/mysql"), {
@@ -97,43 +96,6 @@ fastify.setErrorHandler(function (error, request, reply) {
   reply.status(statusCode).send(response);
 });
 
-//
-// ──────────────────────────────────────────────────────────── SERVER ROUTES ─────────────────────────────────────────────────────────────
-//
-
-// fastify.get("/admin/", (req, reply) => {
-//   console.log("serving /admin/");
-//   const stream = fs.createReadStream(
-//     path.join("../client", "dist", "index.html")
-//   );
-//   reply.type("text/html").send(stream);
-// });
-
-// fastify.get("/admin/*", (req, reply) => {
-//   console.log("serving /admin/*");
-//   const stream = fs.createReadStream(
-//     path.join("../client", "dist", "index.html")
-//   );
-//   reply.code(200).type("text/html").send(stream);
-// });
-
-// fastify.get("/admin/:filename(.[A-Za-z]{1,4})", function (req, reply) {
-//   console.log("Serving /admin/:filename");
-//   let filename = req.params.filename;
-//   let fileext = filename.split(".").last();
-//   let type = "text/plain";
-//   if (fileext == "css") {
-//     type = "text/css";
-//   }
-//   if (fileext == "js") {
-//     type = "text/javascript";
-//   }
-//   if (fileext == "html") {
-//     type = "text/html";
-//   }
-//   const stream = fs.createReadStream(path.join("../client", "dist", filename));
-//   reply.code(200).type(type).send(stream);
-// });
 
 // ROUTES USERS
 // fastify.register(require("./controller/templates"));
@@ -158,4 +120,6 @@ const start = async () => {
 
 start()
 
-    
+// ssl:
+// mode: requireSSL
+// PEMKeyFile: /etc/ssl/mongo.pem

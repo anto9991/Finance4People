@@ -77,10 +77,7 @@ async function routes(fastify, options, next) {
                 ]
                 if (catType == null || catType == "Greenblatt") {
 
-                    let data = await db.find({}).toArray();
-                    // var start2 = Date.now();
-                    for (let index in data) {
-                        let stock = data[index];
+                    for await(let stock of db.find({})) {
                         // Skip stocks with marketCap unde 100M
                         if (parseInt(stock.marketCap) < 100000000) continue;
 
@@ -194,10 +191,10 @@ async function routes(fastify, options, next) {
                     // var end1 = Date.now();
                     // console.log("\n---\nTime to get data from DB", end1 - start1);
 
-                    let data = await db.find({}).toArray();
+                    // let data = await db.find({}).toArray();
                     // var start2 = Date.now();
-                    for (let index in data) {
-                        let stock = data[index];
+                    for (let stock in await db.find({})) {
+                        console.log(stock)
                         let keyStatsIndex = 10;
                         // Skip stocks with marketCap unde 100M
                         if (stock.keyStatistics[keyStatsIndex]?.data.marketCap < 100000000) continue;
