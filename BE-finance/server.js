@@ -96,10 +96,6 @@ fastify.setErrorHandler(function (error, request, reply) {
   reply.status(statusCode).send(response);
 });
 
-
-// ROUTES USERS
-// fastify.register(require("./controller/templates"));
-
 fastify.register(require("./controller/stocks"));
 fastify.register(require("./controller/user"));
 
@@ -109,7 +105,6 @@ fastify.register(require("./controller/user"));
 const start = async () => {
   try {
     await fastify.listen({ port: 3000, host: env.HOST })
-    // await fastify.listen({ port: 3000 })
   } catch (err) {
     // fastify.log.error(err)
     console.log(err)

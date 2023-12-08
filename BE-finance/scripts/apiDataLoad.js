@@ -68,8 +68,8 @@ async function AlphaVantageDataLoad() {
         let stockList = await getCSVStockList("stockList.csv");
 
 
-        // for (let index = 0; index < stockList.length; index++) {
-        for (let index = 0; index < 1; index++) {
+        for (let index = 0; index < stockList.length; index++) {
+        // for (let index = 0; index < 1; index++) {
             try {
                 let stock = stockList[index];
 
