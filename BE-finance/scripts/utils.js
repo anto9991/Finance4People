@@ -19,16 +19,6 @@ function findByKey(obj, keyToFind) {
         }, [])
 }
 
-// function findByKey(obj, keyToFind) {
-//     return Object.entries(obj)
-//         .reduce((acc, [key, value]) => (key === keyToFind)
-//             ? acc.concat(value)
-//             : (typeof value === 'object') 
-//                 ? acc.concat(findByKey(value, keyToFind))
-//                 : acc
-//             , [])
-// }
-
 function subStringCustom(input, start, end, startOffset, endOffset) {
     let startIndex = input.indexOf(start) + startOffset;
     let endIndex = input.indexOf(end) + endOffset;
@@ -66,9 +56,30 @@ async function sendEmail(adressee, message, filename, path) {
     await transporter.sendMail(mail);
 }
 
+
+function standardDeviation(arr) {
+    // Creating the mean with Array.reduce
+    let mean = arr.reduce((acc, curr) => {
+        return acc + curr
+    }, 0) / arr.length;
+    
+    // Assigning (value - mean) ^ 2 to
+    // every array item
+    arr = arr.map((k) => {
+        return (k - mean) ** 2
+    });
+ 
+    // Calculating the sum of updated array 
+    let sum = arr.reduce((acc, curr) => acc + curr, 0);
+ 
+    // Returning the standard deviation
+    return (sum / arr.length) ** 0.5
+}
+
 module.exports = {
     findByKey,
     subStringCustom,
     delay,
-    sendEmail
+    sendEmail,
+    standardDeviation
 };

@@ -53,13 +53,13 @@ async function AlphaVantageDataLoad() {
     try {
         try {
             dbInstance = await dbConnection()
-            if(!dbInstance)
+            if (!dbInstance)
                 throw "DB connection failed"
         } catch (err) {
             errors.push({
                 date: new Date().toISOString(),
                 error: err,
-                location: "Db connection" 
+                location: "Db connection"
             });
         }
 
@@ -68,8 +68,8 @@ async function AlphaVantageDataLoad() {
         let stockList = await getCSVStockList("stockList.csv");
 
 
-        for (let index = 0; index < stockList.length; index++) {
-        // for (let index = 0; index < 2; index++) {
+        // for (let index = 0; index < stockList.length; index++) {
+        for (let index = 0; index < 1; index++) {
             try {
                 let stock = stockList[index];
 
@@ -114,8 +114,15 @@ async function AlphaVantageDataLoad() {
                 let dailySeries = [];
                 let weeklySeries = [];
 
+                let returnsArr = []
+
                 for (let i = 0; i < weeklySeriesValues.length; i++) {
                     if (i < dailySeriesValues.length) {
+                        let returnPerc = (
+                            ((parseFloat(dailySeriesValues[i]["1. open"]) - parseFloat(dailySeriesValues[i]["4. close"]))
+                                / parseFloat(dailySeriesValues[i]["1. open"]))
+                            * 100).toFixed(2)
+                        returnsArr.push(parseFloat(returnPerc));
                         let daily = {
                             open: dailySeriesValues[i]["1. open"],
                             close: dailySeriesValues[i]["4. close"],
@@ -160,6 +167,30 @@ async function AlphaVantageDataLoad() {
                         y20_w: weeklySeries
                     }
                 };
+
+                // Greenblatt parameters
+                // Calulate earning yield
+                let earningYield;
+                if (dbObject.ebit && dbObject.enterpriseValue) {
+                    earningYield = dbObject.ebit / dbObject.enterpriseValue
+                }
+
+                let returnOnCapital;
+                if (dbObject.ebit && dbObject.propertyPlantEquipment && dbObject.totalCurrentAssets && dbObject.totalCurrentLiabilities) {
+                    returnOnCapital = dbObject.ebit
+                        / (dbObject.propertyPlantEquipment + (dbObject.totalCurrentAssets - dbObject.totalCurrentLiabilities))
+                }
+
+                dbObject.earningYield = (earningYield ? earningYield : 0) * 100;
+                dbObject.returnOnCapital = (returnOnCapital ? returnOnCapital : 0) * 100;
+
+                // Sharpe ratio calculus as described here: https://www.youtube.com/watch?v=vTzjk6kLw2I&t=11s
+                let riskFreeReturn = 1.5
+                let annualReturn = ((dailySeries[0].close / dailySeries[dailySeries.length - 1].close) - 1) * 100
+                let stdvReturn = utils.standardDeviation(returnsArr) * (252 ** 0.5);
+
+                dbObject.oneYearSharpeRatio = parseFloat(((annualReturn - riskFreeReturn) / stdvReturn).toFixed(2))
+
                 let query = { symbol: stock.Symbol };
                 let update = { $set: dbObject };
                 let options = { upsert: true };
@@ -167,7 +198,7 @@ async function AlphaVantageDataLoad() {
                 // Check date to update DB only once a day
                 let insertFinance = await dbStocks.updateOne(query, update, options)
                 if (!insertFinance.acknowledged && (insertFinance.modifiedCount == 0 || insertFinance.upsertedCount == 0)) {
-                    throw "Something went wrong for " + stock.Symbol + "(Ack: " + insertFinance.acknowledged + ",ModifiedCount: " + insertFinance.modifiedCount + ", UpsertCount: "+ insertFinance.upsertedCount +")";
+                    throw "Something went wrong for " + stock.Symbol + "(Ack: " + insertFinance.acknowledged + ",ModifiedCount: " + insertFinance.modifiedCount + ", UpsertCount: " + insertFinance.upsertedCount + ")";
                 }
                 await utils.delay(3000)
             } catch (err) {
@@ -179,7 +210,7 @@ async function AlphaVantageDataLoad() {
             }
             stocksUpdated++;
         }
-        console.log("Errors: "+ errors)
+        console.log("Errors: " + JSON.stringify(errors))
         console.log("Stocks updated: " + stocksUpdated)
     } catch (err) {
         console.log(err)
