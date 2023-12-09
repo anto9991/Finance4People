@@ -76,13 +76,21 @@ async function routes(fastify, options, next) {
                     { title: "beta0.5", stocks: [] },
                 ]
                 if (catType == null || catType == "Greenblatt") {
+                    // Skip stocks with marketCap unde 100M
+                    // Skip financial or utility
+                    // let stocks = db.find({$and: [{sector: {$ne: "ENERGY & TRANSPORTATION"}}, {sector: {$ne: "FINANCE"}}, {marketCap: {$gte: 100000000}}]})
 
-                    for await(let stock of db.find({})) {
-                        // Skip stocks with marketCap unde 100M
+                    let stocks = await db.find({ $and: [{ sector: { $ne: "ENERGY & TRANSPORTATION" } }, { sector: { $ne: "FINANCE" } }] }).sort({  returnOnCapital: -1 }).toArray()
+                    // console.log("Earning Yield: " + stocks[0].earningYield + " # " + stocks[300].earningYield)
+                    // console.log("Return on capital: " + stocks[0].returnOnCapital + " # " + stocks[300].returnOnCapital)
+                    for (let i in stocks) {
+                        let stock = stocks[i]
+                        // for (let catIndex in categories) {
+                        //     let category = categories[catIndex];
+                        //     category.stocks.sort((a, b) => ((b.earningYield + b.returnOnCapital) - (a.earningYield + a.returnOnCapital)));
+                        // }
+
                         if (parseInt(stock.marketCap) < 100000000) continue;
-
-                        // Skip financial or utility
-                        if (stock.sector == "ENERGY & TRANSPORTATION" || stock.sector == "FINANCE") continue;
 
                         if (beta) {
                             if (stock.beta != undefined) {
@@ -110,8 +118,6 @@ async function routes(fastify, options, next) {
             }
         },
     });
-
-    
 
     fastify.route({
         url: "/stocks/:stockId/favourite",
