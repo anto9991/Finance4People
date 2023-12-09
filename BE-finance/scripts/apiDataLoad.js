@@ -167,7 +167,8 @@ async function AlphaVantageDataLoad() {
                     series: {
                         y1_d: dailySeries,
                         y20_w: weeklySeries
-                    }
+                    },
+                    updatedAt: new Date().toISOString()
                 };
 
                 // Greenblatt parameters
