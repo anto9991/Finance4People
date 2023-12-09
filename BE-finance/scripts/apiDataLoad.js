@@ -116,7 +116,9 @@ async function AlphaVantageDataLoad() {
 
                 let returnsArr = []
 
-                for (let i = 0; i < weeklySeriesValues.length; i++) {
+                // Use the same for cicle to fill two separate arrays
+                // 5y * 52w = 260 records
+                for (let i = 0; i < 260; i++) {
                     if (i < dailySeriesValues.length) {
                         let returnPerc = (
                             ((parseFloat(dailySeriesValues[i]["1. open"]) - parseFloat(dailySeriesValues[i]["4. close"]))

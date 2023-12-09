@@ -114,7 +114,6 @@ async function routes(fastify, options, next) {
                     }
                     result = categories
                 }
-                console.log(result)
                 return respF(reply, result);
             } catch (err) {
                 console.log(Date.now(), "\n", err)
