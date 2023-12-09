@@ -79,40 +79,43 @@ async function routes(fastify, options, next) {
                     // Skip stocks with marketCap unde 100M
                     // Skip financial or utility
                     // let stocks = db.find({$and: [{sector: {$ne: "ENERGY & TRANSPORTATION"}}, {sector: {$ne: "FINANCE"}}, {marketCap: {$gte: 100000000}}]})
+                    let stocks = await db.find({ $and: [{ sector: { $ne: "ENERGY & TRANSPORTATION" } }, { sector: { $ne: "FINANCE" } }, {marketCap: {$gte: 100000000}}] }).sort({ returnOnCapital: -1 }).toArray()
 
-                    let stocks = await db.find({ $and: [{ sector: { $ne: "ENERGY & TRANSPORTATION" } }, { sector: { $ne: "FINANCE" } }] }).sort({  returnOnCapital: -1 }).toArray()
-                    // console.log("Earning Yield: " + stocks[0].earningYield + " # " + stocks[300].earningYield)
-                    // console.log("Return on capital: " + stocks[0].returnOnCapital + " # " + stocks[300].returnOnCapital)
+                    // Weight Greenblatt's parameters
+                    let maxROC = stocks[0].returnOnCapital
+                    let maxEY = 0
                     for (let i in stocks) {
                         let stock = stocks[i]
-                        // for (let catIndex in categories) {
-                        //     let category = categories[catIndex];
-                        //     category.stocks.sort((a, b) => ((b.earningYield + b.returnOnCapital) - (a.earningYield + a.returnOnCapital)));
-                        // }
+                        if (stock.earningYield > maxEY) maxEY = stock.earningYield
+                    }
+                    stocks.sort((a, b) => ((b.earningYield / (maxEY ?? 1) + b.returnOnCapital / maxROC) - (a.earningYield / (maxEY ?? 1) + a.returnOnCapital / maxROC)));
+                    result = stocks
+                } else if (catType == "Sharpe") {
+                    result = await db.find().sort({ oneYearSharpeRatio: -1 }).toArray()
+                }
+                if (beta && result) {
+                    for (let i in result) {
+                        let stock = result[i]
 
-                        if (parseInt(stock.marketCap) < 100000000) continue;
-
-                        if (beta) {
-                            if (stock.beta != undefined) {
-                                if (stock.beta > 1.5) {
-                                    categories[0].stocks.push(stock);
-                                }
-                                if (stock.beta > 1.0 && stock.beta < 1.5) {
-                                    categories[1].stocks.push(stock);
-                                }
-                                if (stock.beta > 0.5 && stock.beta < 1.0) {
-                                    categories[2].stocks.push(stock);
-                                }
-                                if (stock.beta < 0.5) {
-                                    categories[3].stocks.push(stock);
-                                }
+                        if (stock.beta != undefined) {
+                            if (stock.beta > 1.5) {
+                                categories[0].stocks.push(stock);
                             }
-                        } else {
-                            result.push(stock);
+                            if (stock.beta > 1.0 && stock.beta < 1.5) {
+                                categories[1].stocks.push(stock);
+                            }
+                            if (stock.beta > 0.5 && stock.beta < 1.0) {
+                                categories[2].stocks.push(stock);
+                            }
+                            if (stock.beta < 0.5) {
+                                categories[3].stocks.push(stock);
+                            }
                         }
                     }
-                    return respF(reply, beta ? categories : result);
+                    result = categories
                 }
+                console.log(result)
+                return respF(reply, result);
             } catch (err) {
                 console.log(Date.now(), "\n", err)
             }
