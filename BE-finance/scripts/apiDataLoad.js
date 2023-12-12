@@ -128,14 +128,14 @@ async function AlphaVantageDataLoad() {
                         let daily = {
                             open: dailySeriesValues[i]["1. open"],
                             close: dailySeriesValues[i]["4. close"],
-                            timestamp: Date.parse(dailySeriesKeys[0])
+                            timestamp: Date.parse(dailySeriesKeys[i])
                         }
                         dailySeries.push(daily)
                     }
                     let weekly = {
                         open: weeklySeriesValues[i]["1. open"],
                         close: weeklySeriesValues[i]["4. close"],
-                        timestamp: Date.parse(weeklySeriesKeys[0])
+                        timestamp: Date.parse(weeklySeriesKeys[i])
                     }
                     weeklySeries.push(weekly)
                 }
