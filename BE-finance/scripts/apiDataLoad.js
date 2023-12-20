@@ -66,10 +66,13 @@ async function AlphaVantageDataLoad() {
         let dbStocks = dbInstance.db(env.DB_NAME).collection("stocks")
 
         let stockList = await getCSVStockList("stockList.csv");
-
+        // let res = await dbStocks.find({}, { ebit: 1, _id: 0 }).toArray()
+        // for (let i in res) {
+        //     console.log(typeof res[i].ebit);
+        // }
 
         for (let index = 0; index < stockList.length; index++) {
-        // for (let index = 0; index < 1; index++) {
+            // for (let index = 0; index < 1; index++) {
             try {
                 let stock = stockList[index];
 
@@ -154,14 +157,12 @@ async function AlphaVantageDataLoad() {
                     trailingEPS: companyOverview.EPS,
                     analystTargetPrice: companyOverview.AnalystTargetPrice,
                     beta: companyOverview.Beta,
-                    enterpriseValue: parseFloat(companyOverview.EVToEBITDA) * parseFloat(companyOverview.EBITDA),
-                    returnOnCapital: parseFloat(incomeStatement.annualReports[0].ebit) / (parseFloat(balanceSheet.annualReports[0].propertyPlantEquipment) + (parseFloat(balanceSheet.annualReports[0].totalCurrentAssets) - parseFloat(balanceSheet.annualReports[0].totalCurrentLiabilities))),
-                    ebit: parseFloat(incomeStatement.annualReports[0].ebit),
-                    propertyPlantEquipment: parseFloat(balanceSheet.annualReports[0].propertyPlantEquipment),
-                    totalCurrentAssets: parseFloat(balanceSheet.annualReports[0].totalCurrentAssets),
-                    totalCurrentLiabilities: parseFloat(balanceSheet.annualReports[0].totalCurrentLiabilities),
-                    forwardPE: companyOverview.ForwardPE,
-                    trailingPE: companyOverview.TrailingPE,
+                    enterpriseValue: parseFloat(companyOverview.EVToEBITDA) * parseInt(companyOverview.EBITDA),
+                    returnOnCapital: parseInt(incomeStatement.annualReports[0].ebit) / (parseInt(balanceSheet.annualReports[0].propertyPlantEquipment) + (parseInt(balanceSheet.annualReports[0].totalCurrentAssets) - parseInt(balanceSheet.annualReports[0].totalCurrentLiabilities))),
+                    ebit: parseInt(incomeStatement.annualReports[0].ebit),
+                    propertyPlantEquipment: parseInt(balanceSheet.annualReports[0].propertyPlantEquipment),
+                    totalCurrentAssets: parseInt(balanceSheet.annualReports[0].totalCurrentAssets),
+                    totalCurrentLiabilities: parseInt(balanceSheet.annualReports[0].totalCurrentLiabilities),
                     wh52: companyOverview["52WeekHigh"],
                     wl52: companyOverview["52WeekLow"],
                     series: {
