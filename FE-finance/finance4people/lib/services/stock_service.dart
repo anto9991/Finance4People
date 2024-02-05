@@ -59,7 +59,7 @@ class StockService {
 
       final queryParams = {'catType': categorization, 'beta': beta.toString()};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var response = await http.get(Uri.http(env.host, '/stocks', queryParams), headers: headers);
+      var response = await http.get(Uri.https(env.host, '/stocks', queryParams), headers: headers);
       // print("Request Time: ${stopwatch1.elapsed}");
       // stopwatch1.stop();
       Stopwatch stopwatch = Stopwatch()..start();
@@ -151,7 +151,7 @@ class StockService {
         }
 
         var request = await http.post(
-          Uri.http(env.host, '/stocks/$stockId/favourite'),
+          Uri.https(env.host, '/stocks/$stockId/favourite'),
           headers: <String, String>{
             HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',

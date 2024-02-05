@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:finance4people/models/apple_user.dart';
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/google_user.dart';
+import 'package:finance4people/models/stock.dart';
+import 'package:finance4people/models/stock_category.dart';
 import 'package:finance4people/models/user.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/stores/stock_store.dart';
@@ -101,10 +103,8 @@ class AuthService {
       ];
 
       final credential = await SignInWithApple.getAppleIDCredential(
-          scopes: scopes,
-          webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: Uri.parse("nous-fined.xyz")),
-          nonce: nonce);
-      AuthStore.appleUser = AppleUser();    
+          scopes: scopes, webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: Uri.parse("nous-fined.xyz")), nonce: nonce);
+      AuthStore.appleUser = AppleUser();
       AuthStore.appleUser!.nonce = nonce;
       AuthStore.appleUser!.appleUserCredentials = credential;
       AuthStore.displayName = credential.givenName;
@@ -128,7 +128,7 @@ class AuthService {
     }
   }
 
-  void clearStockStore(){
+  void clearStockStore() {
     StockStore.categoriesGreenBlatt = CategoriesContainer(categories: []);
     StockStore.favouritesBeta = CategoriesContainer(categories: []);
     StockStore.categoriesSharpe = CategoriesContainer(categories: []);
@@ -175,7 +175,7 @@ class AuthService {
           throw Exception("User should be logged");
         }
         var response = await http.get(
-          Uri.http(env.host, '/user'),
+          Uri.https(env.host, '/user'),
           headers: <String, String>{
             HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
@@ -186,10 +186,23 @@ class AuthService {
           AuthStore.user = User.fromJson(responseJson["user"]);
           AuthStore.userFavStocks = AuthStore.user.favourites;
           // StockStore.categoriesGreenBlatt.categories[0];
+          // Sometimes when logged in with apple this request is slower than get stocks so you need to make sure that stocks are set as favourites
+          refreshFavStocks(AuthStore.userFavStocks);
         }
       }
     } catch (error) {
       print(error);
+    }
+  }
+}
+
+void refreshFavStocks(List<dynamic> favs) {
+  if (favs.isNotEmpty) {
+    List<dynamic> categories = StockStore.categoriesGreenBlatt.categories;
+    for (int i = 0; i < categories.length; i++) {
+      for (int j = 0; j < (categories[i] as StockCategory).stocks.length; j++) {
+        (categories[i] as StockCategory).stocks[j].isFavourite.value = favs.contains((categories[i] as StockCategory).stocks[j].id);
+      }
     }
   }
 }

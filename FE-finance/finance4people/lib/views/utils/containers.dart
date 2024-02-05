@@ -59,16 +59,16 @@ class _StockContainerState extends State<StockContainer> {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: SizedBox(
-        height: MediaQuery.of(context).size.width * 0.3,
+        height: MediaQuery.of(context).size.width * 0.4,
         child: Padding(
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(4),
             child: Container(
                 decoration: BoxDecoration(
                   // Background color
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(5),
                   // border: Border.all(color: Theme.of(context).dividerColor)
-                  border: AppStore.themeMode.value == ThemeMode.dark ? Border.all(width: 2, color: Theme.of(context).colorScheme.secondary) : null,
+                  border: AppStore.themeMode.value == ThemeMode.dark ? Border.all(width: 1.5, color: Theme.of(context).colorScheme.secondary) : null,
                 ),
                 width: MediaQuery.of(context).size.width * 0.67,
                 child: Column(
