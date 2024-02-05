@@ -52,16 +52,16 @@ class StockService {
 
   // List can be of stockCategory or just stocks
   static Future<void> fetchFromBEStocks(String categorization, bool beta) async {
-    Stopwatch mainStopwatch = Stopwatch()..start();
+    // Stopwatch mainStopwatch = Stopwatch()..start();
     try {
       StockStore.isLoading.value = true;
-      Stopwatch stopwatch1 = Stopwatch()..start();
+      // Stopwatch stopwatch1 = Stopwatch()..start();
 
       final queryParams = {'catType': categorization, 'beta': beta.toString()};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var response = await http.get(Uri.https(env.host, '/stocks', queryParams), headers: headers);
-      print("Request Time: ${stopwatch1.elapsed}");
-      stopwatch1.stop();
+      var response = await http.get(Uri.http(env.host, '/stocks', queryParams), headers: headers);
+      // print("Request Time: ${stopwatch1.elapsed}");
+      // stopwatch1.stop();
       Stopwatch stopwatch = Stopwatch()..start();
 
       if (response.statusCode == 200) {
@@ -77,24 +77,27 @@ class StockService {
       stopwatch.stop();
       print("Flutter parsing Time: ${stopwatch.elapsed}");
     } catch (error) {
-      if (mainStopwatch.elapsed < const Duration(seconds: 1)) {
-        await Future.delayed(const Duration(seconds: 1));
-      }
+      // if (mainStopwatch.elapsed < const Duration(seconds: 1)) {
+      //   await Future.delayed(const Duration(seconds: 1));
+      // }
       throw (Exception(error));
     } finally {
       StockStore.isLoading.value = false;
-      mainStopwatch.stop();
-      print("Total Time: ${mainStopwatch.elapsed}");
+      // mainStopwatch.stop();
+      // print("Total Time: ${mainStopwatch.elapsed}");
     }
   }
 
   static dynamic castStocks(bool beta, dynamic responseJson) {
     var result = [];
+    // TODO: FIX problem: with apple auth userFavStocks array gets populated too late
     if (beta) {
       for (var category in responseJson) {
         StockCategory stockCatToAdd = StockCategory(title: category["title"], stocks: []);
         for (var stock in category["stocks"]) {
-          stockCatToAdd.stocks.add(Stock.fromJson(stock));
+          Stock currStock = Stock.fromJson(stock);
+          currStock.isFavourite.value = AuthStore.userFavStocks.contains(currStock.id);
+          stockCatToAdd.stocks.add(currStock);
         }
         result.add(stockCatToAdd);
       }
@@ -135,20 +138,20 @@ class StockService {
   static Future<bool> setFavourite(String stockId, bool value) async {
     try {
       if (AuthStore.isLogged) {
-        var user;
-        var code;
+        String user;
+        String code;
         if (AuthStore.appleUser != null) {
-          user = AuthStore.appleUser!.authorizationCode;
-          code = "A ${AuthStore.nonce}";
-        } else if (AuthStore.gUser.idToken != "") {
-          user = AuthStore.gUser.idToken;
+          user = AuthStore.appleUser!.appleUserCredentials!.identityToken!;
+          code = "A ${AuthStore.appleUser!.nonce}";
+        } else if (AuthStore.gUser?.idToken != "") {
+          user = AuthStore.gUser!.idToken;
           code = "G";
         } else {
           throw Exception("User should be logged");
         }
 
         var request = await http.post(
-          Uri.https(env.host, '/stocks/$stockId/favourite'),
+          Uri.http(env.host, '/stocks/$stockId/favourite'),
           headers: <String, String>{
             HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',

@@ -36,6 +36,8 @@ class StockStore {
     "EV": EVInfographic(),
     "MarketCap": MarketCapInfographic(),
     "PE": PEInfographic(),
-    "Volume": VolumeInfographic()
+    "Volume": VolumeInfographic(),
+    "ROC": ROCInfographic(),
+    "EY": EYInfographic()
   };
 }

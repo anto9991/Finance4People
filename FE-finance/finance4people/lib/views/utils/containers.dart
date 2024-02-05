@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/services/stock_service.dart';
+import 'package:finance4people/stores/app_store.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/pages/stock/stock_detail.dart';
 import 'package:finance4people/views/utils/area_chart.dart';
-import 'package:finance4people/views/utils/numbers.dart';
 import 'package:finance4people/views/utils/series_utils.dart';
 import 'package:finance4people/views/utils/text.dart';
 import 'package:flutter/material.dart';
@@ -25,28 +25,33 @@ class StockContainer extends StatefulWidget {
 
 class _StockContainerState extends State<StockContainer> {
   List<Widget> getKeyStats() {
-    var decodedKeystats = jsonDecode(widget.stock.keyStats);
+    // var decodedKeystats = jsonDecode(widget.stock.keyStats);
 
     List<Widget> keyStats = [];
+    keyStats.add(
+      BoldAndPlain(bold: "Beta", plain: widget.stock.beta ?? "N.A.", fontSize: 11),
+    );
     if (StockStore.selectedCatType == "Greenblatt") {
       keyStats.add(
-        BoldAndPlain(bold: "Beta", plain: NumberUtils.formatNumber(decodedKeystats["data"]["beta"]["raw"]), fontSize: 12.5),
+        BoldAndPlain(bold: "R.O.C.", plain: widget.stock.returnOnCapital != null ? widget.stock.returnOnCapital!.toStringAsFixed(2) : "N.A.", fontSize: 11),
       );
       keyStats.add(
-        BoldAndPlain(bold: "Earning Yield", plain: NumberUtils.formatNumber(decodedKeystats["data"]["earningYield"]), fontSize: 12.5),
+        BoldAndPlain(bold: "Earning Yield", plain: widget.stock.earningYield != null ? widget.stock.earningYield!.toStringAsFixed(2) : "N.A.", fontSize: 11),
       );
+    } else if (StockStore.selectedCatType == "Sharpe") {
       keyStats.add(
-        BoldAndPlain(bold: "R.O.C.", plain: NumberUtils.formatNumber(decodedKeystats["data"]["returnOnCapital"]), fontSize: 12.5),
+        BoldAndPlain(bold: "Sharpe(1Y)", plain: widget.stock.oneYearSharpeRatio != null ? widget.stock.oneYearSharpeRatio!.toStringAsFixed(2) : "N.A.", fontSize: 11),
       );
     }
-    keyStats.add(BoldAndPlain(bold: "Market cap", plain: NumberUtils.formatNumber(decodedKeystats["data"]["marketCap"]), fontSize: 12.5));
+    keyStats.add(BoldAndPlain(bold: "Market cap", plain: widget.stock.marketCap != null ? widget.stock.marketCap!.toStringAsFixed(2) : "N.A.", fontSize: 11));
 
-    // keyStats.add(
-    //   BoldAndPlain(bold: "Trailing P/E", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"]), fontSize: 12.5),
-    // );
-    // keyStats.add(
-    //   BoldAndPlain(bold: "Trailing EPS", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingEPS"]), fontSize: 12.5),
-    // );
+    keyStats.add(
+      BoldAndPlain(bold: "Trailing P/E", plain: widget.stock.trailingPE ?? "N.A.", fontSize: 11),
+    );
+    keyStats.add(
+      BoldAndPlain(bold: "Trailing EPS", plain: widget.stock.trailingEPS ?? "N.A.", fontSize: 11),
+    );
+
     return keyStats;
   }
 
@@ -61,10 +66,11 @@ class _StockContainerState extends State<StockContainer> {
                 decoration: BoxDecoration(
                   // Background color
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(8),
-                  // border: Border.all(width: 3, color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(5),
+                  // border: Border.all(color: Theme.of(context).dividerColor)
+                  border: AppStore.themeMode.value == ThemeMode.dark ? Border.all(width: 2, color: Theme.of(context).colorScheme.secondary) : null,
                 ),
-                width: MediaQuery.of(context).size.width * 0.65,
+                width: MediaQuery.of(context).size.width * 0.67,
                 child: Column(
                   // crossAxisAlignment: WrapCrossAlignment.center,
                   // alignment: WrapAlignment.spaceBetween,
@@ -77,7 +83,7 @@ class _StockContainerState extends State<StockContainer> {
                           padding: const EdgeInsets.only(left: 5),
                           width: MediaQuery.of(context).size.width * 0.55,
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.50),
-                          child: Text("(${widget.stock.ticker}) ${widget.stock.name}", overflow: TextOverflow.ellipsis),
+                          child: Text("(${widget.stock.symbol}) ${widget.stock.name}", overflow: TextOverflow.ellipsis),
                         ),
                         ValueListenableBuilder(
                             valueListenable: widget.stock.isFavourite,
@@ -110,13 +116,12 @@ class _StockContainerState extends State<StockContainer> {
                             ),
                             width: MediaQuery.of(context).size.width * 0.35,
                             height: MediaQuery.of(context).size.width * 0.20,
-                            child: widget.stock.series.isNotEmpty == true
-                                ? AreaChart(series: SeriesUtils.getChartSeries(widget.stock.series, "6M"), isReduced: true)
-                                : const Center(
+                            child: widget.stock.series1 != []
+                                ? AreaChart(series: SeriesUtils.getChartSeries(widget.stock.series1!, "6M"), isReduced: true)
+                                : Center(
                                     child: Text(
-                                    //TODO add internationalization
-                                    "No data available",
-                                    style: TextStyle(color: Colors.grey),
+                                    AppLocalizations.of(context)!.noData,
+                                    style: const TextStyle(color: Colors.grey),
                                   ))),
                         SizedBox(
                           // decoration: BoxDecoration(
@@ -180,7 +185,7 @@ class CategoryContainer extends StatelessWidget {
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         Row(
           children: [
-            Text(getLocalization(context, title), style: Theme.of(context).textTheme.headline6),
+            Text(getLocalization(context, title), style: Theme.of(context).textTheme.titleLarge),
             // IconButton(
             //     padding: const EdgeInsets.only(bottom: 2, left: 5),
             //     constraints: const BoxConstraints(minHeight: 0, minWidth: 0),
@@ -224,7 +229,10 @@ class GenericContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(10)
+        ),
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.all(10),
       child: child,

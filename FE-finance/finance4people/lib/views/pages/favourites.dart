@@ -2,9 +2,7 @@ import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/stock.dart';
 import 'package:finance4people/services/stock_service.dart';
 import 'package:finance4people/stores/stock_store.dart';
-import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/containers.dart';
-import 'package:finance4people/views/utils/dropdown.dart';
 import 'package:finance4people/views/utils/icon_button.dart';
 import 'package:finance4people/views/utils/view_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +22,7 @@ class _FavouritesState extends State<Favourites> {
   Widget build(BuildContext context) {
     List favsStocks = [];
     return ViewScaffold(
-        viewName: "Preferiti",
+        viewName: AppLocalizations.of(context)!.favourites,
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.75,
           child: ValueListenableBuilder(
@@ -48,7 +46,7 @@ class _FavouritesState extends State<Favourites> {
                             return CategoryContainer(
                               title: (StockStore.data as CategoriesContainer).categories[index].title,
                               stocks: catFavsStocks,
-                              emptyCatString: AppLocalizations.of(context)!.noStocksInCat,
+                              emptyCatString: AppLocalizations.of(context)!.noFavourites,
                               favouritesPage: true,
                             );
                           }))

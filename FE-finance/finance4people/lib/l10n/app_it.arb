@@ -1,6 +1,14 @@
 {
-    "cat1Desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Suspendisse potenti nullam ac tortor vitae. Nulla facilisi etiam dignissim diam. Neque viverra justo nec ultrices. Donec enim diam vulputate ut pharetra sit. Vehicula ipsum a arcu cursus vitae congue. Auctor urna nunc id cursus metus aliquam eleifend. Suscipit tellus mauris a diam maecenas sed enim ut sem. Dolor purus non enim praesent",
+    "welcome": "Benvenuto",
+    "categorization": "Categorizzazione",
+
+    "favourites": "Favoriti",
+    "settings": "Account & Impostazioni",
     
+    "theme": "Cambia tema",
+
+    "stats": "Statistiche",
+
     "beta15": "Titoli molto aggressivi",
     "beta12": "Titoli aggressivi",
     "beta07": "Titoli difensivi",
@@ -14,6 +22,10 @@
     "name": "Nome",
 
     "login": "Accedi con",
-    "skipLogin": "Altrimenti continua senza login (i tuoi progressi non verranno salvati)"
+    "skipLogin": "Altrimenti continua senza login (i tuoi progressi non verranno salvati)",
+    "loginSuccess":"Login completato con successo!",
+    "loginError": "Qualcosa è andato storto, prova di nuovo o continua senza login",
 
+    "loading": "Caricando",
+    "noData": "Nessun dato disponibile"
 }

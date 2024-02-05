@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:finance4people/models/apple_user.dart';
+import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/models/google_user.dart';
 import 'package:finance4people/models/user.dart';
 import 'package:finance4people/stores/auth_store.dart';
+import 'package:finance4people/stores/stock_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import './env.dart' as env;
 import "dart:math" as math;
@@ -26,16 +30,50 @@ class AuthService {
     ],
   );
 
+  Future<void> setAuthInSP(Object user) async {
+    final preferences = await SharedPreferences.getInstance();
+    if (user is GoogleUser) {
+      String stringifiedUser = json.encode(GoogleUser.toJson(user));
+      preferences.setString('gUser', stringifiedUser);
+    } else if (user is AppleUser) {
+      String stringifiedUser = json.encode(AppleUser.toJson(user));
+      preferences.setString('aUser', stringifiedUser);
+    }
+  }
+
+  Future<void> getAuthInSP() async {
+    final preferences = await SharedPreferences.getInstance();
+    String? stringifiedGUser = preferences.getString('gUser');
+    if (stringifiedGUser != null) {
+      GoogleUser gUser = GoogleUser.fromJson(json.decode(stringifiedGUser));
+      AuthStore.gUser = gUser;
+      AuthStore.hasAuth.value = true;
+      AuthStore.displayName = gUser.displayName;
+      AuthStore.isLogged = true;
+    }
+    String? stringifiedAUser = preferences.getString('aUser');
+    if (stringifiedAUser != null) {
+      AppleUser aUser = AppleUser.fromJson(json.decode(stringifiedAUser));
+      AuthStore.appleUser = aUser;
+      AuthStore.displayName = aUser.appleUserCredentials!.givenName;
+      AuthStore.hasAuth.value = true;
+      AuthStore.isLogged = true;
+    }
+  }
+
   Future<String> signInWithGoogle() async {
     try {
       return await _googleSignIn.signIn().then((res) {
         if (res != null) {
           return res.authentication.then((key) {
-            return AuthStore.gUser = GoogleUser(displayName: res.displayName ?? "", email: res.email, id: res.id, idToken: key.idToken ?? "");
-          }).then((value) {
+            return AuthStore.gUser =
+                GoogleUser(displayName: res.displayName ?? "", email: res.email, id: res.id, idToken: key.idToken ?? "", accessToken: key.accessToken ?? "");
+          }).then((value) async {
             if (value.idToken != "") {
               AuthStore.hasAuth.value = true;
               AuthStore.isLogged = true;
+              AuthStore.displayName = value.displayName;
+              await setAuthInSP(AuthStore.gUser!);
               return "Success";
             } else {
               return "Error";
@@ -64,11 +102,13 @@ class AuthService {
 
       final credential = await SignInWithApple.getAppleIDCredential(
           scopes: scopes,
-          webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: kIsWeb ? Uri.parse("some url") : Uri.parse("Some other url")),
+          webAuthenticationOptions: WebAuthenticationOptions(clientId: "finance4people-58004", redirectUri: Uri.parse("nous-fined.xyz")),
           nonce: nonce);
-      print("Credentials $credential");
-      AuthStore.nonce = nonce;
-      AuthStore.appleUser = credential;
+      AuthStore.appleUser = AppleUser();    
+      AuthStore.appleUser!.nonce = nonce;
+      AuthStore.appleUser!.appleUserCredentials = credential;
+      AuthStore.displayName = credential.givenName;
+      await setAuthInSP(AuthStore.appleUser!);
       AuthStore.hasAuth.value = true;
       AuthStore.isLogged = true;
       return "Success";
@@ -88,8 +128,19 @@ class AuthService {
     }
   }
 
+  void clearStockStore(){
+    StockStore.categoriesGreenBlatt = CategoriesContainer(categories: []);
+    StockStore.favouritesBeta = CategoriesContainer(categories: []);
+    StockStore.categoriesSharpe = CategoriesContainer(categories: []);
+    StockStore.greenblattNoBeta = [];
+    StockStore.favouritesNoBeta = [];
+    StockStore.sharpeNoBeta = [];
+  }
+
   Future<String> signOut() async {
     try {
+      final preferences = await SharedPreferences.getInstance();
+      preferences.clear();
       String gSignOut = await signOutGoogle();
       if (gSignOut == "Error") {
         throw Error();
@@ -100,6 +151,8 @@ class AuthService {
       AuthStore.user = User();
       AuthStore.appleUser = null;
       AuthStore.googleId = "";
+      AuthStore.userFavStocks = [];
+      clearStockStore();
       return "Success";
     } catch (error) {
       print(error);
@@ -113,25 +166,26 @@ class AuthService {
         var user;
         var code;
         if (AuthStore.appleUser != null) {
-          user = AuthStore.appleUser!.identityToken;
-          code = "A ${AuthStore.nonce}";
-        } else if (AuthStore.gUser.idToken != "") {
-          user = AuthStore.gUser.idToken;
+          user = AuthStore.appleUser!.appleUserCredentials!.identityToken;
+          code = "A ${AuthStore.appleUser!.nonce}";
+        } else if (AuthStore.gUser?.idToken != "") {
+          user = AuthStore.gUser!.idToken;
           code = "G";
         } else {
           throw Exception("User should be logged");
         }
-        var request = http.get(
-          Uri.https(env.host, '/user'),
+        var response = await http.get(
+          Uri.http(env.host, '/user'),
           headers: <String, String>{
             HttpHeaders.authorizationHeader: 'Bearer $user $code',
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
           },
         );
-        var response = await request;
         if (response.statusCode == 200) {
           var responseJson = jsonDecode(response.body);
           AuthStore.user = User.fromJson(responseJson["user"]);
+          AuthStore.userFavStocks = AuthStore.user.favourites;
+          // StockStore.categoriesGreenBlatt.categories[0];
         }
       }
     } catch (error) {

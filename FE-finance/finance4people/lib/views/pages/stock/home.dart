@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:finance4people/models/categories_container.dart';
 import 'package:finance4people/services/stock_service.dart';
+import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/stores/stock_store.dart';
 import 'package:finance4people/views/utils/bottom_modal.dart';
 import 'package:finance4people/views/utils/containers.dart';
@@ -18,16 +19,16 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool dataLoadingError = false;
-  String loadingMessage = "Loading...";
+  // String loadingMessage = "${AppLocalizations.of(context)!.loading}...";
 
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 10), () {
-      setState(() {
-        loadingMessage = "It's taking longer than it should...";
-      });
-    });
+    // Timer(const Duration(seconds: 10), () {
+    //   setState(() {
+    //     loadingMessage = "It's taking longer than it should...";
+    //   });
+    // });
     _asyncDataLoading();
   }
 
@@ -51,7 +52,7 @@ class _HomeState extends State<Home> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [const CircularProgressIndicator(), const SizedBox(height: 10), Text(loadingMessage)],
+                        children: [const CircularProgressIndicator(), const SizedBox(height: 10), Text("${AppLocalizations.of(context)!.loading}...")],
                       ),
                     );
                   } else if (value == false) {
@@ -59,8 +60,7 @@ class _HomeState extends State<Home> {
                       return CustomScrollView(
                         slivers: <Widget>[
                           SliverAppBar(
-                            //TODO internationalize
-                            title: const Text("Benvenuto su Gobull"),
+                            title: Text("${AppLocalizations.of(context)!.welcome} ${AuthStore.displayName ?? ""}"),
                             expandedHeight: MediaQuery.of(context).size.height * 0.2,
                             backgroundColor: Theme.of(context).colorScheme.primary,
                             forceElevated: true,
@@ -90,12 +90,12 @@ class _HomeState extends State<Home> {
                                           children: <Widget>[
                                             CustomDropdown(
                                                 //TODO internationalize
-                                                label: "Categorizzatore",
+                                                label: AppLocalizations.of(context)!.categorization,
                                                 value: StockStore.selectedCatType,
                                                 items: StockStore.catTypes,
                                                 onChanged: (String? val) {
                                                   if (val != StockStore.selectedCatType) {
-                                                    //TODO: fetch new categories
+                                                    StockService.getStocks(val, null);
                                                   }
                                                   setState(() {
                                                     StockStore.selectedCatType = val!;

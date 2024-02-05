@@ -26,12 +26,14 @@ class Login extends StatelessWidget {
                   String message;
                   Color color;
                   if (auth == "Success") {
-                      message = "Login completed successfully";
+                      // ignore: use_build_context_synchronously
+                      message = AppLocalizations.of(context)!.loginSuccess;
                       color = Colors.green;
                     if (!mounted) return;
                     CustomSnackBar.show(context, message, color);
                   } else if (auth == "Error") {
-                      message = "Something went wrong, try again or skip login";
+                    // ignore: use_build_context_synchronously
+                      message = AppLocalizations.of(context)!.loginError;
                       color =  Colors.red;
                     if (!mounted) return;
                     CustomSnackBar.show(context, message, color);

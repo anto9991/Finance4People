@@ -1,10 +1,12 @@
+import 'package:finance4people/stores/app_store.dart';
 import 'package:flutter/material.dart';
 
 const shortImgHeight = 0.3;
 const shortModalHeight = 0.35;
 const longImgHeight = 0.86;
 const longModalHeight = 0.9;
-const basicIndicatorsPath = "assets/images/infographics/basic_indicators";
+var basicIndicatorsPath = 'assets/images/infographics/basic_indicators/${AppStore.locale.toString() == 'it' ? 'it' : 'en'}';
+var indicatorsPath = 'assets/images/infographics/${AppStore.locale.toString() == 'it' ? 'en' : 'en'}';
 
 abstract class Infographic {
   late String path;
@@ -15,13 +17,13 @@ abstract class Infographic {
 
 class GreenblattInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/greenblatt.png';
+  String path = '$indicatorsPath/greenblatt.png';
 
   @override
-  double infographicHeight = 0.65;
+  double infographicHeight = 0.73;
 
   @override
-  double modalHeight = 0.7;
+  double modalHeight = 0.75;
 
   @override
   Color color = const Color(0xff49A642);
@@ -29,13 +31,13 @@ class GreenblattInfographic implements Infographic {
 
 class SharpeInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/sharpe.png';
+  String path = '$indicatorsPath/sharpe.png';
 
   @override
-  double infographicHeight = 0.6;
+  double infographicHeight = 0.65;
 
   @override
-  double modalHeight = 0.65;
+  double modalHeight = 0.67;
 
   @override
   Color color = const Color(0xff49A642);
@@ -43,7 +45,7 @@ class SharpeInfographic implements Infographic {
 
 class BetaInfographic implements Infographic {
   @override
-  String path = 'assets/images/infographics/beta.png';
+  String path = '$indicatorsPath/beta.png';
 
   @override
   double infographicHeight = 0.75;
@@ -57,7 +59,7 @@ class BetaInfographic implements Infographic {
 
 class Whl52Infographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/52whl.png';
+  String path = '$basicIndicatorsPath/whl52.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -85,7 +87,7 @@ class AnalystInfographic implements Infographic {
 
 class DividendPerShareInfographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/dps.png';
+  String path = '$basicIndicatorsPath/DPS.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -99,7 +101,7 @@ class DividendPerShareInfographic implements Infographic {
 
 class EPSInfographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/eps.png';
+  String path = '$basicIndicatorsPath/trailEPS.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -113,7 +115,7 @@ class EPSInfographic implements Infographic {
 
 class EVInfographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/ev.png';
+  String path = '$basicIndicatorsPath/EV.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -127,7 +129,7 @@ class EVInfographic implements Infographic {
 
 class MarketCapInfographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/market_cap.png';
+  String path = '$basicIndicatorsPath/mCap.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -141,7 +143,7 @@ class MarketCapInfographic implements Infographic {
 
 class PEInfographic implements Infographic {
   @override
-  String path = '$basicIndicatorsPath/pe.png';
+  String path = '$basicIndicatorsPath/PE.png';
 
   @override
   double infographicHeight = shortImgHeight;
@@ -156,6 +158,33 @@ class PEInfographic implements Infographic {
 class VolumeInfographic implements Infographic {
   @override
   String path = '$basicIndicatorsPath/volume.png';
+
+  @override
+  double infographicHeight = shortImgHeight;
+
+  @override
+  double modalHeight = shortModalHeight;
+
+  @override
+  Color color = const Color(0xff49A642);
+}
+
+class ROCInfographic implements Infographic {
+  @override
+  String path = '$basicIndicatorsPath/ROC.png';
+
+  @override
+  double infographicHeight = shortImgHeight;
+
+  @override
+  double modalHeight = shortModalHeight;
+
+  @override
+  Color color = const Color(0xff49A642);
+}
+class EYInfographic implements Infographic {
+  @override
+  String path = '$basicIndicatorsPath/eY.png';
 
   @override
   double infographicHeight = shortImgHeight;

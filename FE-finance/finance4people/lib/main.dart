@@ -3,23 +3,31 @@ import 'package:finance4people/stores/app_store.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/pages/account.dart';
 import 'package:finance4people/views/pages/favourites.dart';
-import 'package:finance4people/views/pages/feed.dart';
 import 'package:finance4people/views/pages/login.dart';
 import 'package:finance4people/views/pages/stock/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:finance4people/views/pages/feed.dart';
 
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await SharedPreferences.getInstance();
+  runApp(MyApp(preferences: preferences));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final SharedPreferences preferences;
+  const MyApp({Key? key, required this.preferences}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String theme = preferences.getString('theme') ?? '';
+    AppStore.setTheme(theme);
+    AuthService.authService.getAuthInSP();
     return ValueListenableBuilder<ThemeMode>(
         valueListenable: AppStore.themeMode,
         builder: (_, value, __) {
@@ -39,10 +47,6 @@ class MyApp extends StatelessWidget {
               // themeMode: ThemeMode.dark,
               themeMode: value,
               // Palette colori Alessandro
-              // Green primary: #49A642
-              // Green secondary: #042623
-              // White: #D3E5D5
-              // gold: #F2CB55
               darkTheme: ThemeData(
                   brightness: Brightness.dark,
                   textTheme: const TextTheme(
@@ -60,7 +64,7 @@ class MyApp extends StatelessWidget {
                   ),
                   shadowColor: const Color(0xffF2CB55),
                   selectedRowColor: const Color(0xffF2CB55),
-                  cardColor: const Color(0xff49A642),
+                  cardColor: const Color(0xff042623),
                   scaffoldBackgroundColor: const Color(0xff042623),
                   dividerColor: const Color(0xffF2CB55)),
               theme: ThemeData(
@@ -72,7 +76,11 @@ class MyApp extends StatelessWidget {
                     headline1: TextStyle(color: Color(0xff49A642)),
                   ),
                   colorScheme: const ColorScheme.light(
-                      primary: Color(0xff49A642), primaryContainer: Color(0xff042623), secondary: Color(0xffF2CB55), secondaryContainer: Color(0xfff6dfc8)),
+                      primary: Color(0xff49A642), 
+                      primaryContainer: Color(0xff042623), 
+                      secondary: Color(0xffF2CB55), 
+                      secondaryContainer: Color(0xfff6dfc8)
+                    ),
                   cardColor: Colors.white,
                   shadowColor: Colors.black38,
                   selectedRowColor: const Color(0xff49A642),
@@ -125,6 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Startup settings
+    Locale locale = Localizations.localeOf(context);
+    AppStore.locale = locale;
     return Scaffold(
       body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
       bottomNavigationBar: Container(

@@ -27,12 +27,12 @@ class _StockDetailState extends State<StockDetail> {
   @override
   Widget build(BuildContext context) {
     if (widget.chartSeries.isEmpty) {
-      widget.chartSeries = widget.stock.series;
+      widget.chartSeries = widget.stock.series20 ?? [];
     }
     return Scaffold(
       appBar: AppBar(
         // title: Text("${widget.stock.name} (${widget.stock.ticker})", overflow: TextOverflow.ellipsis),
-        title: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text("${widget.stock.name} (${widget.stock.ticker})")),
+        title: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text("${widget.stock.name} (${widget.stock.symbol})")),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: Container(
@@ -49,7 +49,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[0],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "5D");
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series1 ?? [], "5D");
                         widget.selectedIndex = [true, false, false, false, false, false];
                       });
                     }),
@@ -58,7 +58,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[1],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "1M");
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series1 ?? [], "1M");
                         widget.selectedIndex = [false, true, false, false, false, false];
                       });
                     }),
@@ -67,7 +67,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[2],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "6M");
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series1 ?? [], "6M");
                         widget.selectedIndex = [false, false, true, false, false, false];
                       });
                     }),
@@ -76,7 +76,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[3],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "YTD");
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series20 ?? [], "YTD");
                         widget.selectedIndex = [false, false, false, true, false, false];
                       });
                     }),
@@ -85,7 +85,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[4],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series, "1Y");
+                        widget.chartSeries = SeriesUtils.getChartSeries(widget.stock.series20 ?? [], "1Y");
                         widget.selectedIndex = [false, false, false, false, true, false];
                       });
                     }),
@@ -94,7 +94,7 @@ class _StockDetailState extends State<StockDetail> {
                     isSelected: widget.selectedIndex[5],
                     onPressed: () {
                       setState(() {
-                        widget.chartSeries = widget.stock.series;
+                        widget.chartSeries = widget.stock.series20 ?? [];
                         widget.selectedIndex = [false, false, false, false, false, true];
                       });
                     }),
@@ -108,11 +108,10 @@ class _StockDetailState extends State<StockDetail> {
                 height: MediaQuery.of(context).size.width * 0.4,
                 child: widget.chartSeries.isNotEmpty == true
                     ? AreaChart(series: widget.chartSeries, isReduced: false)
-                    : const Center(
+                    : Center(
                         child: Text(
-                        //TODO add internationalization
-                        "No data available",
-                        style: TextStyle(color: Colors.grey),
+                        AppLocalizations.of(context)!.noData,
+                        style: const TextStyle(color: Colors.grey),
                       )),
               )
             ],
@@ -124,7 +123,7 @@ class _StockDetailState extends State<StockDetail> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             // children: [Text(AppLocalizations.of(context)!.lastWeekViews)],
-            children: [Text("Statistiche", style: Theme.of(context).textTheme.headline6)],
+            children: [Text("${AppLocalizations.of(context)!.stats}", style: Theme.of(context).textTheme.headline6)],
           ),
           Wrap(
             alignment: WrapAlignment.center,
@@ -134,7 +133,7 @@ class _StockDetailState extends State<StockDetail> {
                 width: 0.95,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: getKeyStats(0),
+                  children: getKeyStats(),
                 ),
               ),
               // StatsChip(
@@ -149,58 +148,41 @@ class _StockDetailState extends State<StockDetail> {
             thickness: 2,
           ),
           // Social Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            //TODO modificare con "... settimana sui social"
-            children: [Text(AppLocalizations.of(context)!.lastWeekViews, style: Theme.of(context).textTheme.headline6)],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   //TODO modificare con "... settimana sui social"
+          //   children: [Text(AppLocalizations.of(context)!.lastWeekViews, style: Theme.of(context).textTheme.headline6)],
+          // ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.005),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              SocialChip(name: "Twitter", counter: 100000, color: Colors.blue),
-              // SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-              // const SocialChip(name: "Reddit", counter: 35000, color: Colors.red),
-            ],
-          )
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //   children: const [
+          //     SocialChip(name: "Twitter", counter: 100000, color: Colors.blue),
+          //     // SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+          //     // const SocialChip(name: "Reddit", counter: 35000, color: Colors.red),
+          //   ],
+          // )
         ]),
       ),
     );
   }
 
-  List<Widget> getKeyStats(int chipNum) {
-    var decodedKeystats = jsonDecode(widget.stock.keyStats);
-
+  List<Widget> getKeyStats() {
     List<Widget> keyStats = [];
 
-    
-      if (StockStore.selectedCatType == "Greenblatt") {
-        keyStats.add(
-          SingleStatChip(imageName: "Beta",bold: "Beta", plain: NumberUtils.formatNumber(decodedKeystats["data"]["beta"]["raw"])),
-        );
-        keyStats.add(
-          SingleStatChip(imageName: "Beta",bold: "Earning Yield", plain: NumberUtils.formatNumber(decodedKeystats["data"]["earningYield"])),
-        );
-        keyStats.add(
-          SingleStatChip(imageName: "Beta",bold: "Return on capital", plain: NumberUtils.formatNumber(decodedKeystats["data"]["returnOnCapital"])),
-        );
-      }
-      keyStats.add(SingleStatChip(imageName: "EV",bold: "Enterprise Value", plain: "\$${decodedKeystats["data"]["enterpriseValue"]["fmt"] ?? "N.D."}"));
-      keyStats.add(SingleStatChip(imageName: "PE",bold: "Forward PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardPE"])));
-      keyStats.add(SingleStatChip(imageName: "PE",bold: "Trailing PE", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"])));
-    
-      keyStats.add(SingleStatChip(imageName: "EPS",bold: "Trailing EPS", plain: decodedKeystats["data"]["trailingEPS"]?["fmt"] ?? "N.D."));
-      keyStats.add(SingleStatChip(imageName: "EPS",bold: "Forward EPS", plain: NumberUtils.formatNumber(decodedKeystats["data"]["forwardEPS"])));
-      keyStats.add(SingleStatChip(imageName: "Analyst",bold: "Analyst rating", plain: decodedKeystats["data"]["averageAnalystRating"] ?? "N.D."));
-      keyStats.add(SingleStatChip(imageName: "Whl52",bold: "52 Weeks Low", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekLow"])}"));
-      keyStats.add(SingleStatChip(imageName: "Whl52",bold: "52 Weeks High", plain: "\$${NumberUtils.formatNumber(decodedKeystats["data"]["fiftyTwoWeekHigh"])}"));
+    keyStats.add(SingleStatChip(bold: "Beta", plain: widget.stock.beta ?? "N.A.", imageName: "Beta"));
+    keyStats
+        .add(SingleStatChip(bold: "Earning Yield", plain: widget.stock.earningYield != null ? widget.stock.earningYield!.toStringAsFixed(2) : "N.A.", imageName: "EY"));
+    keyStats.add(SingleStatChip(
+        bold: "Return on capital", plain: widget.stock.returnOnCapital != null ? widget.stock.returnOnCapital!.toStringAsFixed(2) : "N.A.", imageName: "ROC"));
+    keyStats.add(SingleStatChip(bold: "Enterprise value", plain: widget.stock.enterpriseValue.toString(), imageName: "EV"));
+    keyStats.add(SingleStatChip(bold: "Volume", plain: widget.stock.volume.toString(), imageName: "Volume"));
+    keyStats.add(SingleStatChip(bold: "Forward PE", plain: widget.stock.forwardPE ?? "N.A.", imageName: "PE"));
+    keyStats.add(SingleStatChip(bold: "Trailing PE", plain: widget.stock.trailingPE ?? "N.A.", imageName: "PE"));
+    keyStats.add(SingleStatChip(bold: "Trailing EPS", plain: widget.stock.trailingEPS ?? "N.A.", imageName: "EPS"));
+    keyStats.add(SingleStatChip(bold: "52 Weeks Low", plain: widget.stock.wl52 ?? "N.A.", imageName: "Whl52"));
+    keyStats.add(SingleStatChip(bold: "52 Weeks High", plain: widget.stock.wh52 ?? "N.A.", imageName: "Whl52"));
 
-    // keyStats.add(
-    //   BoldAndPlain(bold: "Trailing P/E", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingPE"]), fontSize: fontSize),
-    // );
-    // keyStats.add(
-    //   BoldAndPlain(bold: "Trailing EPS", plain: NumberUtils.formatNumber(decodedKeystats["data"]["trailingEPS"]), fontSize: fontSize),
-    // );
     return keyStats;
   }
 }

@@ -51,12 +51,12 @@ class _AreaChartState extends State<AreaChart> {
         AreaSeries<StockSeriesChart, DateTime>(
           enableTooltip: !widget.isReduced,
           dataSource: widget.series,
-          xValueMapper: (StockSeriesChart price, _) => price.date,
-          yValueMapper: (StockSeriesChart price, _) => price.close,
-          borderColor: widget.series[0].close > widget.series[widget.series.length - 1].close ? Colors.red : Colors.green,
+          xValueMapper: (StockSeriesChart elem, _) => elem.date,
+          yValueMapper: (StockSeriesChart elem, _) => elem.close,
+          borderColor: widget.series[0].close < widget.series[widget.series.length - 1].close ? Colors.red : Colors.green,
           borderWidth: 3,
           gradient: LinearGradient(
-            colors: widget.series[0].close > widget.series[widget.series.length - 1].close
+            colors: widget.series[0].close < widget.series[widget.series.length - 1].close
                 ? [Colors.red.withOpacity(0.6), Colors.red.withOpacity(0.0)]
                 : [Colors.green.withOpacity(0.6), Colors.green.withOpacity(0.0)],
             begin: Alignment.topCenter,

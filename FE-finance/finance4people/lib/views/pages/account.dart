@@ -3,6 +3,7 @@ import 'package:finance4people/stores/app_store.dart';
 import 'package:finance4people/stores/auth_store.dart';
 import 'package:finance4people/views/utils/view_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return ViewScaffold(
         //TODO internationalize
-        viewName: "Account & Impostazioni",
+        viewName: AppLocalizations.of(context)!.settings,
         child: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,10 +39,11 @@ class _AccountState extends State<Account> {
             ValueListenableBuilder(
                 valueListenable: AppStore.themeMode,
                 builder: ((_, value, __) => AccountButton(
-                    text: "Cambia tema",
+                    text: AppLocalizations.of(context)!.theme,
                     icon: AppStore.themeMode.value == ThemeMode.light ? const Icon(Icons.mode_night_outlined) : const Icon(Icons.wb_sunny_outlined),
                     onPressed: (() {
-                      AppStore.themeMode.value = value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+                      String param = value == ThemeMode.light ? 'dark' : 'light';
+                      AppStore.setTheme(param);
                     })))),
             // AccountButton(text: "Some other settings", onPressed: (() => "ciao")),
           ],
