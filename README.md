@@ -13,4 +13,4 @@ The beta grouping aims to customize stock picks for the end customer, as low bet
 
 The project has a BE side implemented in typescript using Fastify and a NoSQL DB (MongoDB); the FE is implemented in Flutter because it allowed me to develop for Android and IOS with just one codebase.
 
-Store banners (with "mockups") are available in /images folder.
+Store banners (with app's screenshots) are available in /images folder.
