@@ -13,4 +13,10 @@ The beta grouping aims to customize stock picks for the end customer, as low bet
 
 The project has a BE side implemented in typescript using Fastify and a NoSQL DB (MongoDB); the FE is implemented in Flutter because it allowed me to develop for Android and IOS with just one codebase.
 
-Store banners (with app's screenshots) are available in /images folder.
+These images were meant for the iOS and Android app stores (they also provide an insight of the application0):
+
+![Gobull-appstore-1](https://github.com/user-attachments/assets/43e4ae0e-4390-48c6-88e4-d951abf34957)
+![Gobull-appstore-4](https://github.com/user-attachments/assets/14bfd397-fd61-4faa-98b1-a1c8fee19b6e)
+![Gobull-appstore-2](https://github.com/user-attachments/assets/d05222fc-37c1-4da5-9adc-b3a354a57f7c)
+![Gobull-appstore-3](https://github.com/user-attachments/assets/a5ec77e3-fd65-47a1-95c4-e1008ed09c69)
+![Gobull-appstore-5](https://github.com/user-attachments/assets/bec7fc51-1a29-4c6d-bd15-1e8dcba43fa1)
